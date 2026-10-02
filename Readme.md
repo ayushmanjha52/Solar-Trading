@@ -1,5 +1,9 @@
 # Local Energy Market
 
+**Live:** https://local-energy-market.onrender.com (free instance: if nobody has
+visited for a while, the first page takes about a minute to wake it, and the
+market restarts at 12 Nov 2012, 10:00).
+
 A peer-to-peer market for one residential LV feeder. Households with rooftop
 solar sell surplus to their neighbours instead of exporting it to the utility.
 The book clears every half hour at a single uniform price, strictly inside the
