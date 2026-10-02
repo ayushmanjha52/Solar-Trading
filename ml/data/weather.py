@@ -46,34 +46,58 @@ def cell_of(lat, lon) -> pd.Series | str:
     return ids[0] if np.ndim(lat) == 0 else pd.Series(ids, index=getattr(lat, "index", None))
 
 
+CHUNK_DAYS = 380  # one request per ~year: small, fast responses
+RETRY_WAIT_S = (10, 30, 60, 120, 180, 240)
+
+
+def _get(params: dict) -> dict:
+    """One Open-Meteo request, retried on rate limits, timeouts, dropped connections and server errors."""
+    last = None
+    for wait in RETRY_WAIT_S:
+        try:
+            r = requests.get(config.OPEN_METEO_URL, params=params, timeout=(20, 180))
+            if r.status_code == 429 or r.status_code >= 500:
+                last = f"HTTP {r.status_code}"
+            else:
+                r.raise_for_status()
+                return r.json()
+        except (requests.Timeout, requests.ConnectionError) as e:
+            last = type(e).__name__
+        time.sleep(wait)
+    raise RuntimeError(f"Open-Meteo did not answer after {len(RETRY_WAIT_S)} attempts ({last})")
+
+
 def fetch_cell(cell: str) -> dict:
     path = config.WEATHER_DIR / f"era5_nearest_{cell}.json"
     if path.exists():
         return json.loads(path.read_text(encoding="utf-8"))
     lat, lon = (float(x) for x in cell.split("_"))
-    params = {
-        "latitude": lat,
-        "longitude": lon,
-        "start_date": (preprocess.GRID_START - pd.Timedelta(days=1)).strftime("%Y-%m-%d"),
-        "end_date": (preprocess.GRID_END + pd.Timedelta(days=1)).strftime("%Y-%m-%d"),
-        "hourly": ",".join(config.WEATHER_HOURLY_MEAN_VARS + config.WEATHER_HOURLY_INSTANT_VARS),
-        "models": "era5",
-        "cell_selection": "nearest",
-        "timezone": "GMT",
-    }
-    for attempt in range(6):
-        r = requests.get(config.OPEN_METEO_URL, params=params, timeout=120)
-        if r.status_code == 429:  # rate limited: back off and retry
-            time.sleep(30 * (attempt + 1))
-            continue
-        r.raise_for_status()
-        break
-    else:
-        raise RuntimeError(f"Open-Meteo kept rate-limiting cell {cell}")
-    data = r.json()
+    start = (preprocess.GRID_START - pd.Timedelta(days=1)).normalize().tz_localize(None)
+    end = (preprocess.GRID_END + pd.Timedelta(days=1)).normalize().tz_localize(None)
+    variables = config.WEATHER_HOURLY_MEAN_VARS + config.WEATHER_HOURLY_INSTANT_VARS
+    data: dict | None = None
+    lo = start
+    while lo <= end:
+        hi = min(lo + pd.Timedelta(days=CHUNK_DAYS - 1), end)
+        part = _get({
+            "latitude": lat,
+            "longitude": lon,
+            "start_date": lo.strftime("%Y-%m-%d"),
+            "end_date": hi.strftime("%Y-%m-%d"),
+            "hourly": ",".join(variables),
+            "models": "era5",
+            "cell_selection": "nearest",
+            "timezone": "GMT",
+        })
+        if data is None:
+            data = part
+        else:  # consecutive, non-overlapping date ranges: append
+            for key in ["time", *variables]:
+                data["hourly"][key].extend(part["hourly"][key])
+        lo = hi + pd.Timedelta(days=1)
+        time.sleep(3)  # stay well inside the free tier's per-minute quota
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data), encoding="utf-8")
-    time.sleep(10)  # each 3-year request costs ~80 calls against a 600/min quota
     return data
 
 
