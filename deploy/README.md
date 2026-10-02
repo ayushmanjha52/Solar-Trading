@@ -22,10 +22,18 @@ to the website, and the website on `$PORT`, the one port a host exposes.
     docker build -f deploy/Dockerfile -t local-energy-market .
     docker run -p 3000:3000 -e LEM_ADMIN_TOKEN=<a long random secret> local-energy-market
 
-The image builds the Ausgrid panel during `docker build` (network needed; the
-~57 MB archive is downloaded and hash-checked). The ERA5 weather responses ship
-in `deploy/weather-cache.tar.gz`, because Open-Meteo can take many minutes to
-answer a cloud builder; the out-of-sample forecasts come from `deploy/forecasts/`.
+The image does not rebuild the three-year, 300-household panel: that needs
+gigabytes of memory and a slow weather download, too much for a small cloud
+builder. It ships `deploy/bundle/` instead, the slice the engine reads (the 24
+feeder households over the simulated six months, all customers' metadata, and
+the out-of-sample forecasts), cut from the full pipeline by `python -m sim.bundle`
+and recorded with SHA-256 hashes in `deploy/bundle/manifest.json`. Rebuilding
+everything from the raw archive remains `python -m ml.data`, which CI does on
+every push.
+
+Measured on the development machine in production mode, under load from several
+pages: engine about 165 MB, Next about 145 MB. That fits Render's free 512 MB
+instance with room to spare.
 
 **Set `LEM_ADMIN_TOKEN` on any public deployment.** Every visitor shares one
 clock. With the token set, pausing, stepping, changing speed or jumping to
@@ -35,9 +43,11 @@ slot.
 
 **Render**: the repository has a Blueprint (`render.yaml`). In the Render
 dashboard choose New → Blueprint and pick this repository; it creates the web
-service from `deploy/Dockerfile` with a generated `LEM_ADMIN_TOKEN` (shown in the
-service's Environment tab). The first build takes several minutes because it
-builds the data panel.
+service from `deploy/Dockerfile` on the free plan with a generated
+`LEM_ADMIN_TOKEN` (shown in the service's Environment tab). A free instance
+sleeps after about 15 idle minutes; the next visitor waits about a minute while
+it wakes, and the market restarts at its default day, because its history lives
+in memory.
 
 Any other host that runs a Docker image as a web service works too: Railway,
 Fly, or a VM. The engine keeps the order book and three days of history in memory,

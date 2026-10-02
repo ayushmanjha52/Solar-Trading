@@ -1,7 +1,9 @@
 # The whole interactive market in one image: Python engine + Next.js website.
 #   docker build -f deploy/Dockerfile -t local-energy-market .
 #   docker run -p 3000:3000 -e LEM_ADMIN_TOKEN=<secret> local-energy-market
-# Any single-container host (Render, Railway, Fly, a VM) can run it; it exposes $PORT.
+# Sized for a small instance (512 MB): the image ships the engine's data slice
+# (deploy/bundle, cut from the full pipeline by `python -m sim.bundle`) instead of
+# rebuilding the three-year, 300-household panel during the build.
 FROM node:20-bookworm-slim
 
 RUN apt-get update \
@@ -18,15 +20,10 @@ COPY web/package.json web/package-lock.json web/
 RUN cd web && npm ci
 
 COPY . .
-# ERA5 is a fixed historical reanalysis, so its 17 responses ship with the repo:
-# Open-Meteo can take minutes to answer a cloud builder, and the build should not
-# depend on it. The Ausgrid archive (~57 MB, hash-pinned) is still downloaded.
-RUN mkdir -p data/raw/weather && tar -xzf deploy/weather-cache.tar.gz -C data/raw/weather
-RUN python -m ml.data
-# Out-of-sample forecasts for the agents, produced offline by `python -m ml.evaluate`.
-RUN cp deploy/forecasts/forecasts_feeder.* data/processed/
-RUN cd web && npm run build
+RUN mkdir -p data/processed && cp deploy/bundle/*.parquet deploy/bundle/forecasts_feeder.json data/processed/
+RUN cd web && npm run build && npm prune --omit=dev
 
-ENV PORT=3000 NODE_ENV=production
+# Keep Node's heap well inside a 512 MB instance alongside the Python engine.
+ENV PORT=3000 NODE_ENV=production NODE_OPTIONS=--max-old-space-size=192
 EXPOSE 3000
 CMD ["python", "deploy/start.py"]

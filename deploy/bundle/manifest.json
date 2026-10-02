@@ -1,0 +1,40 @@
+{
+  "source": "python -m ml.data (Ausgrid archive sha256 5a766f52b6c8b3b72730380f4422e478934bc94640a4b089dd0e0e3c055c5d82) and python -m ml.evaluate",
+  "feeder_customers": [
+    131,
+    280,
+    81,
+    95,
+    96,
+    159,
+    166,
+    228,
+    209,
+    79,
+    296,
+    179,
+    274,
+    149,
+    32,
+    195,
+    65,
+    185,
+    27,
+    236,
+    123,
+    83,
+    100,
+    190
+  ],
+  "range_utc": [
+    "2012-09-29 14:00:00+00:00",
+    "2013-03-31 14:00:00+00:00"
+  ],
+  "rows": 210816,
+  "files": {
+    "customers.parquet": "35951c720116b03b6d52612dee37b6ef970838f36faa27be9c22d58366536573",
+    "forecasts_feeder.json": "5900116009a5803f20d83ee105f65f21f9460b9bedc5208648f94a04a2916c7f",
+    "forecasts_feeder.parquet": "d94b03a59661c25e7ec0dcb7dd443bb4bab1f954a050822904ba7c6eb29116a1",
+    "panel.parquet": "cf026d6ca738c46b09f88a7bac3201cce06d989db1cc4b23c68e640d310e0f39"
+  }
+}

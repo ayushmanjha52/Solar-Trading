@@ -6,9 +6,9 @@ services:
     runtime: docker
     dockerfilePath: ./deploy/Dockerfile
     dockerContext: .
-    # A paid instance: free instances sleep when idle, and a restart resets the
-    # in-memory market.
-    plan: starter
+    # Free instance: 512 MB, sleeps after ~15 idle minutes. Waking takes about a minute and
+    # restarts the market at its default day (12 Nov 2012, 10:00), since history is in memory.
+    plan: free
     healthCheckPath: /api/clock
     envVars:
       # Locks the shared clock to the operator. Render generates the value; read it
