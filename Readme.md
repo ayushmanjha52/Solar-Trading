@@ -189,6 +189,7 @@ on the Method page.
 ## Deploying
 
 See `deploy/README.md`. The recorded replay (`deploy/replay/feeder-replay.html`)
-is a single static file. The interactive market needs the engine and the website
-running together, on any Docker host (`deploy/docker-compose.yml`) or split
-between a static host and a long-running Python process.
+is a single static file. The interactive market is one container
+(`deploy/Dockerfile`) running the engine and the website together; any host that
+runs a Docker image as a web service works. Set `LEM_ADMIN_TOKEN` on a public
+deployment so only the operator can change the clock every visitor shares.

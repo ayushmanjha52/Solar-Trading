@@ -6,6 +6,8 @@ Wh; prices are integer paise per kWh. The web app formats; nothing here rounds.
 
 from __future__ import annotations
 
+import os
+
 from market.double_auction import book_curves
 from sim.engine import SLOTS, SlotRecord, Simulation, UserOrder, slot_time
 
@@ -50,6 +52,8 @@ def clock(sim: Simulation) -> dict:
         "paused": sim.paused, "slot_seconds": sim.slot_seconds,
         "first_day": sim.cfg.first_day, "last_day": sim.cfg.last_day,
         "chain": sim.chain.status() if sim.chain is not None else {"connected": False},
+        # Public deployments lock the shared clock to the operator (see sim/api.py).
+        "controls_locked": bool(os.environ.get("LEM_ADMIN_TOKEN")),
     }
 
 

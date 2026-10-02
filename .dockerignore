@@ -1,0 +1,14 @@
+.git
+.venv
+.demo-logs
+**/node_modules
+web/.next
+data/raw
+data/interim
+data/processed
+contracts/out
+contracts/cache
+contracts/broadcast
+contracts/lib
+**/__pycache__
+.pytest_cache

@@ -36,6 +36,9 @@ from sim.config import DEFAULT, SimConfig
 
 SLOTS = sim_data.SLOTS
 MAX_USER_ORDER_WH = 20_000
+# A public site must not let one visitor flood the shared book.
+MAX_OPEN_VISITOR_ORDERS = 300
+MAX_ORDERS_PER_HOUSEHOLD_SLOT = 5
 USER_HORIZON = SLOTS  # visitors may trade up to a day ahead
 
 
@@ -237,6 +240,11 @@ class Simulation:
                 raise OrderRejected("Orders open at most one day ahead.")
             if not 0 < qty_wh <= MAX_USER_ORDER_WH:
                 raise OrderRejected(f"Quantity must be between 0.001 and {MAX_USER_ORDER_WH / 1000:.0f} kWh.")
+            open_orders = [u for u in self.user_orders.values() if u.status == "open"]
+            if len(open_orders) >= MAX_OPEN_VISITOR_ORDERS:
+                raise OrderRejected("The book is full of visitor orders. Try again after the next gate closure.")
+            if sum(1 for u in open_orders if u.g == g and u.order.household == household) >= MAX_ORDERS_PER_HOUSEHOLD_SLOT:
+                raise OrderRejected(f"That household already has {MAX_ORDERS_PER_HOUSEHOLD_SLOT} orders in this slot.")
             try:
                 self.tariff.check(price)
             except BandViolation as e:
