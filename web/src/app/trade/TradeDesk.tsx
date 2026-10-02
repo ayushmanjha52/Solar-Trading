@@ -150,12 +150,17 @@ export function TradeDesk() {
               </select>
               {forecast != null && (
                 <p className="mt-1 text-xs text-label-muted">
-                  {hh.label} in this slot yesterday:{" "}
+                  {hh.label}&apos;s forecast for this slot:{" "}
                   <span className={`num ${forecast > 0 ? "text-export" : forecast < 0 ? "text-import" : ""}`}>
                     {kwhSigned(forecast)} kWh
-                  </span>{" "}
-                  {forecast > 0 ? "surplus" : forecast < 0 ? "drawn from the grid" : ""}. That is all the agent would
-                  have known.
+                  </span>
+                  {chosen?.forecast_p10_wh != null && chosen?.forecast_p90_wh != null && (
+                    <span className="num">
+                      {" "}
+                      (P10 {kwhSigned(chosen.forecast_p10_wh)}, P90 {kwhSigned(chosen.forecast_p90_wh)})
+                    </span>
+                  )}
+                  , made from meter readings up to two slots before. Positive is surplus to sell.
                 </p>
               )}
             </div>
@@ -225,7 +230,7 @@ export function TradeDesk() {
                 <MarketDepth curves={live.data.book.curves} tariff={f.tariff} height={220} />
                 <DepthLegend />
                 <p className="mt-2 text-xs text-label-muted">
-                  {live.data.book.orders.length} orders: agents bid from yesterday&apos;s same-slot energy
+                  {live.data.book.orders.length} orders; agents bid from: {f.sim.forecast}
                   {live.data.book.orders.some((o) => o.by === "visitor") ? "; visitor orders included" : ""}.
                 </p>
               </>

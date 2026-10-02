@@ -31,6 +31,7 @@ from market.settlement import Reading, SlotSettlement, settle
 from sim import agents, crypto
 from sim import data as sim_data
 from sim import feeder as sim_feeder
+from sim import forecasts as sim_forecasts
 from sim.config import DEFAULT, SimConfig
 
 SLOTS = sim_data.SLOTS
@@ -80,6 +81,7 @@ class Simulation:
         self.loss_cap = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))["loss_cap_fraction"]
         self.model = sim_feeder.build(cfg)
         self.data = sim_data.load(cfg, self.model)
+        self.forecasts = sim_forecasts.load(self.model, self.data)
         self.meters = {h.id: crypto.Meter(h.id, cfg.seed, cfg.chain_id, cfg.verifying_contract)
                        for h in self.model.households}
         self.chain = chain
@@ -134,8 +136,27 @@ class Simulation:
         controlled = self._user_households(g)
         free = [h.id for h in self.model.households if h.id not in controlled]
         book = [u.order for u in self.user_orders.values() if u.g == g and u.status == "open"]
-        book += agents.agent_orders(self.cfg, self.data, self.tariff, free, g, self._next_seq)
+        book += agents.agent_orders(self.cfg, self.data, self.tariff, free, g, self._next_seq,
+                                    self.forecasts, self.expected_price())
         self.books[g] = book
+
+    def expected_price(self) -> float:
+        """What an agent expects the next slot to clear at: the mean cleared price of the last day."""
+        prices = [r.clearing.price for g, r in self.records.items() if g > self.g - SLOTS and r.clearing.price]
+        return sum(prices) / len(prices) if prices else (self.tariff.floor + self.tariff.ceiling) / 2
+
+    def forecast(self, h: int, g: int) -> dict:
+        """The forecast an agent bids from, for display: quantiles if available, else seasonal naive."""
+        q = self.forecasts.get(h, g) if self.forecasts is not None else None
+        if q is not None and self.cfg.volume_rule != "seasonal_naive":
+            return {"p10_wh": int(q[0]), "p50_wh": int(q[1]), "p90_wh": int(q[2])}
+        return {"p50_wh": agents.forecast_net_wh(self.data, h, g)}
+
+    @property
+    def forecast_label(self) -> str:
+        if self.forecasts is not None and self.cfg.volume_rule != "seasonal_naive":
+            return f"{self.forecasts.model}, out of sample; agents bid the {self.cfg.volume_rule} quantile"
+        return "seasonal naive (same slot yesterday)"
 
     def _clear(self, g: int) -> None:
         orders = self.books.pop(g)

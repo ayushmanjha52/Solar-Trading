@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  Area,
   Bar,
   CartesianGrid,
   Cell,
@@ -23,6 +24,7 @@ interface Row {
   slot: number;
   metered: number | null;
   forecast: number;
+  band: [number, number] | null;
   contracted: number | null;
 }
 
@@ -32,7 +34,10 @@ function ChartTip({ active, payload }: { active?: boolean; payload?: { payload: 
   return (
     <div className="num border border-panel-etch bg-panel-base px-2 py-1.5 text-2xs leading-5 text-label">
       <div className="text-label-muted">SP {slotLabel(r.slot)}</div>
-      <div>forecast {kwhSigned(r.forecast * 1000)} kWh</div>
+      <div>
+        forecast {kwhSigned(r.forecast * 1000)} kWh
+        {r.band && ` (P10 ${kwhSigned(r.band[0] * 1000)}, P90 ${kwhSigned(r.band[1] * 1000)})`}
+      </div>
       {r.contracted != null && <div>contracted {kwhSigned(r.contracted * 1000)} kWh</div>}
       {r.metered != null && <div>metered {kwhSigned(r.metered * 1000)} kWh</div>}
     </div>
@@ -49,6 +54,7 @@ export function HouseholdDetail({ id }: { id: number }) {
     slot: s.slot,
     metered: s.metered_net_wh != null ? s.metered_net_wh / 1000 : null,
     forecast: s.forecast_net_wh / 1000,
+    band: s.forecast_p10_wh != null && s.forecast_p90_wh != null ? [s.forecast_p10_wh / 1000, s.forecast_p90_wh / 1000] : null,
     contracted:
       s.contracted_export_wh != null ? ((s.contracted_export_wh ?? 0) - (s.contracted_import_wh ?? 0)) / 1000 : null,
   }));
@@ -108,6 +114,15 @@ export function HouseholdDetail({ id }: { id: number }) {
               <YAxis stroke="var(--panel-etch)" tickLine={false} width={44} tickFormatter={(v: number) => v.toFixed(1)} />
               <ReferenceLine y={0} stroke="var(--label-muted)" />
               <Tooltip content={<ChartTip />} cursor={{ fill: "var(--panel-etch)", opacity: 0.4 }} />
+              <Area
+                dataKey="band"
+                type="stepAfter"
+                fill="var(--label-muted)"
+                fillOpacity={0.18}
+                stroke="none"
+                isAnimationActive={false}
+                connectNulls={false}
+              />
               <Bar dataKey="metered" isAnimationActive={false} maxBarSize={12}>
                 {rows.map((r) => (
                   <Cell key={r.slot} fill={(r.metered ?? 0) >= 0 ? "var(--flow-export)" : "var(--flow-import)"} />
@@ -124,12 +139,13 @@ export function HouseholdDetail({ id }: { id: number }) {
             <i className="-ml-1 inline-block h-2.5 w-2 bg-import" /> metered, signed by the meter
           </span>
           <span className="flex items-center gap-1.5">
-            <i className="inline-block h-0.5 w-4 bg-label-muted" /> forecast: same slot yesterday
+            <i className="inline-block h-0.5 w-4 bg-label-muted" /> forecast P50
+            <i className="ml-2 inline-block h-2.5 w-4 bg-label-muted opacity-30" /> P10–P90
           </span>
           <span className="flex items-center gap-1.5">
             <i className="inline-block h-0.5 w-4 bg-label" /> contracted at gate closure
           </span>
-          <span>kWh per half hour; above zero exports, below zero imports.</span>
+          <span>kWh per half hour; above zero exports, below zero imports. Forecast: {data.forecast_label}.</span>
         </div>
       </Panel>
 

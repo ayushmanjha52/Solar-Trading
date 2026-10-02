@@ -37,7 +37,8 @@ def feeder(sim: Simulation) -> dict:
         ],
         "sim": {"seed": sim.cfg.seed, "cell": sim.cfg.cell, "first_day": sim.cfg.first_day,
                 "last_day": sim.cfg.last_day, "pv_share": sim.cfg.pv_share,
-                "chain_id": sim.cfg.chain_id, "verifying_contract": sim.cfg.verifying_contract},
+                "chain_id": sim.cfg.chain_id, "verifying_contract": sim.cfg.verifying_contract,
+                "forecast": sim.forecast_label, "volume_rule": sim.cfg.volume_rule, "price_rule": sim.cfg.price_rule},
         "provenance": PROVENANCE,
     }
 
@@ -184,7 +185,7 @@ def household(sim: Simulation, h: int) -> dict:
         for g in range(g0, g0 + SLOTS):
             status = sim.status_of(g)
             row = {"g": g, "slot": sim.data.slot_of(g), "time": slot_time(sim.data.slot_of(g)), "status": status,
-                   "forecast_net_wh": sim.data.net_wh(h, g - SLOTS)}
+                   **_forecast(sim, h, g)}
             rec = sim.records.get(g)
             if rec is not None:
                 row["contracted_export_wh"] = sum(t.injected_wh for t in rec.allocation.trades if t.seller == h)
@@ -204,6 +205,7 @@ def household(sim: Simulation, h: int) -> dict:
             "household": next(x for x in feeder(sim)["households"] if x["id"] == h),
             "day": sim.data.local_day(g0),
             "clock": clock(sim),
+            "forecast_label": sim.forecast_label,
             "slots": rows,
             "totals": {
                 "sold_wh": sum(r.get("contracted_export_wh", 0) for r in settled),
@@ -220,7 +222,7 @@ def household(sim: Simulation, h: int) -> dict:
             "orders": [user_order(sim, u) for u in sim.user_orders.values() if u.order.household == h],
             "upcoming": [
                 {"g": g, "day": sim.data.local_day(g), "slot": sim.data.slot_of(g),
-                 "time": slot_time(sim.data.slot_of(g)), "forecast_net_wh": sim.data.net_wh(h, g - SLOTS)}
+                 "time": slot_time(sim.data.slot_of(g)), **_forecast(sim, h, g)}
                 for g in range(sim.g + 1, min(sim.g + 1 + SLOTS, sim.data.last_g + 1))
             ],
         }
@@ -250,7 +252,15 @@ def live_position(sim: Simulation, h: int) -> dict:
     rec = sim.records[sim.g]
     exp = sum(t.injected_wh for t in rec.allocation.trades if t.seller == h)
     imp = sum(t.delivered_wh for t in rec.allocation.trades if t.buyer == h)
-    return {"now_export_wh": exp, "now_import_wh": imp, "forecast_net_wh": sim.data.net_wh(h, sim.g - SLOTS)}
+    return {"now_export_wh": exp, "now_import_wh": imp, **_forecast(sim, h, sim.g)}
+
+
+def _forecast(sim: Simulation, h: int, g: int) -> dict:
+    f = sim.forecast(h, g)
+    out = {"forecast_net_wh": f["p50_wh"]}
+    if "p10_wh" in f:
+        out.update({"forecast_p10_wh": f["p10_wh"], "forecast_p90_wh": f["p90_wh"]})
+    return out
 
 
 def ledger(sim: Simulation, limit: int = 96) -> list[dict]:

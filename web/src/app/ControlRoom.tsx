@@ -105,7 +105,7 @@ export function ControlRoom() {
           <p className="mt-3 text-xs text-label-muted">
             {book.orders.length > 0
               ? `${book.orders.filter((o) => o.side === "sell").length} offers and ${book.orders.filter((o) => o.side === "buy").length} bids. Gate closes when SP ${slotLabel(book.slot)} begins. ${
-                  book.orders.some((o) => o.by === "visitor") ? "Includes visitor orders." : "Agents bid from yesterday's same-slot energy."
+                  book.orders.some((o) => o.by === "visitor") ? "Includes visitor orders." : `Agents bid from: ${f.sim.forecast}.`
                 }`
               : "No orders yet for this slot. Place a bid or an offer to open the book."}
           </p>

@@ -403,7 +403,7 @@ def main() -> None:
         config.DATA_PROCESSED / "timebase_check.parquet", index=False)
     report["panel"] = {"rows": len(panel), "customers": N_CUSTOMERS, "periods": N_PERIODS,
                        "start_utc": str(GRID_START), "end_utc_exclusive": str(GRID_END)}
-    config.QUALITY_JSON.write_text(json.dumps(report, indent=2, default=str))
+    config.QUALITY_JSON.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
     print(f"wrote    {config.PANEL_PARQUET.relative_to(config.ROOT)}  {len(panel):,} rows")
 
 

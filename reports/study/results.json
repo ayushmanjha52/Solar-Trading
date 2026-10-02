@@ -1,0 +1,706 @@
+{
+  "period": {
+    "strategies": [
+      "2012-10-01",
+      "2013-03-31"
+    ],
+    "incentive_compatibility": [
+      "2012-11-01",
+      "2012-12-31"
+    ]
+  },
+  "tariff": {
+    "feed_in_paise": 300,
+    "retail_paise": 850
+  },
+  "forecast_model": "XGBoost + calibrated quantiles",
+  "households": 24,
+  "grid_only_bill_inr": 593785.6895,
+  "strategies": [
+    {
+      "volume": "Seasonal naive",
+      "price": "truthful",
+      "runs": 1,
+      "saving_inr": 12889.3765,
+      "saving_sd_inr": 0.0,
+      "saving_inr_per_household_year": 1077.0655729166667,
+      "traded_kwh": 5536.431,
+      "overcommit_kwh": 4304.609,
+      "mean_price_inr": 5.75,
+      "price_sd_inr": 0.0,
+      "loss_share": 0.0026208219699658253,
+      "cleared_share": 0.4053342490842491,
+      "share_of_oracle": 0.42603691750453715
+    },
+    {
+      "volume": "Seasonal naive",
+      "price": "shaded",
+      "runs": 1,
+      "saving_inr": 12889.3765,
+      "saving_sd_inr": 0.0,
+      "saving_inr_per_household_year": 1077.0655729166667,
+      "traded_kwh": 5536.431,
+      "overcommit_kwh": 4304.609,
+      "mean_price_inr": 5.75,
+      "price_sd_inr": 0.0,
+      "loss_share": 0.0026208219699658253,
+      "cleared_share": 0.4053342490842491,
+      "share_of_oracle": 0.42603691750453715
+    },
+    {
+      "volume": "Seasonal naive",
+      "price": "random",
+      "runs": 5,
+      "saving_inr": 12261.883257999998,
+      "saving_sd_inr": 67.4939346598119,
+      "saving_inr_per_household_year": 1024.6308125389194,
+      "traded_kwh": 5528.176799999999,
+      "overcommit_kwh": 4420.5818,
+      "mean_price_inr": 6.41217764076457,
+      "price_sd_inr": 0.3782624297618091,
+      "loss_share": 0.0021969979640155345,
+      "cleared_share": 0.4053342490842491,
+      "share_of_oracle": 0.405675806494533
+    },
+    {
+      "volume": "Forecast P50",
+      "price": "truthful",
+      "runs": 1,
+      "saving_inr": 21372.2685,
+      "saving_sd_inr": 0.0,
+      "saving_inr_per_household_year": 1785.915293612637,
+      "traded_kwh": 5605.075,
+      "overcommit_kwh": 2350.501,
+      "mean_price_inr": 5.75,
+      "price_sd_inr": 0.0,
+      "loss_share": 0.0021302123521986793,
+      "cleared_share": 0.42754120879120877,
+      "share_of_oracle": 0.7064248136299934
+    },
+    {
+      "volume": "Forecast P50",
+      "price": "shaded",
+      "runs": 1,
+      "saving_inr": 21372.2685,
+      "saving_sd_inr": 0.0,
+      "saving_inr_per_household_year": 1785.915293612637,
+      "traded_kwh": 5605.075,
+      "overcommit_kwh": 2350.501,
+      "mean_price_inr": 5.75,
+      "price_sd_inr": 0.0,
+      "loss_share": 0.0021302123521986793,
+      "cleared_share": 0.42754120879120877,
+      "share_of_oracle": 0.7064248136299934
+    },
+    {
+      "volume": "Forecast P50",
+      "price": "random",
+      "runs": 5,
+      "saving_inr": 20868.170825999998,
+      "saving_sd_inr": 40.64593819368477,
+      "saving_inr_per_household_year": 1743.7917471359892,
+      "traded_kwh": 5598.320000000001,
+      "overcommit_kwh": 2435.7650000000003,
+      "mean_price_inr": 6.366912125200022,
+      "price_sd_inr": 0.37365299366579474,
+      "loss_share": 0.0017553837606879784,
+      "cleared_share": 0.42754120879120877,
+      "share_of_oracle": 0.6904087938025315
+    },
+    {
+      "volume": "Newsvendor quantile",
+      "price": "truthful",
+      "runs": 1,
+      "saving_inr": 21372.2685,
+      "saving_sd_inr": 0.0,
+      "saving_inr_per_household_year": 1785.915293612637,
+      "traded_kwh": 5605.075,
+      "overcommit_kwh": 2350.501,
+      "mean_price_inr": 5.75,
+      "price_sd_inr": 0.0,
+      "loss_share": 0.0021302123521986793,
+      "cleared_share": 0.42754120879120877,
+      "share_of_oracle": 0.7064248136299934
+    },
+    {
+      "volume": "Newsvendor quantile",
+      "price": "shaded",
+      "runs": 1,
+      "saving_inr": 21372.2685,
+      "saving_sd_inr": 0.0,
+      "saving_inr_per_household_year": 1785.915293612637,
+      "traded_kwh": 5605.075,
+      "overcommit_kwh": 2350.501,
+      "mean_price_inr": 5.75,
+      "price_sd_inr": 0.0,
+      "loss_share": 0.0021302123521986793,
+      "cleared_share": 0.42754120879120877,
+      "share_of_oracle": 0.7064248136299934
+    },
+    {
+      "volume": "Newsvendor quantile",
+      "price": "random",
+      "runs": 5,
+      "saving_inr": 23127.989214,
+      "saving_sd_inr": 33.4986393264702,
+      "saving_inr_per_household_year": 1932.6273038255495,
+      "traded_kwh": 6263.167199999999,
+      "overcommit_kwh": 2865.7825999999995,
+      "mean_price_inr": 6.262235166120053,
+      "price_sd_inr": 0.3943849470815194,
+      "loss_share": 0.0016118552888534144,
+      "cleared_share": 0.4445283882783883,
+      "share_of_oracle": 0.7651733000202008
+    },
+    {
+      "volume": "Perfect foresight (oracle)",
+      "price": "truthful",
+      "runs": 1,
+      "saving_inr": 30254.1305,
+      "saving_sd_inr": 0.0,
+      "saving_inr_per_household_year": 2528.103853594322,
+      "traded_kwh": 5507.976,
+      "overcommit_kwh": 0.0,
+      "mean_price_inr": 5.75,
+      "price_sd_inr": 0.0,
+      "loss_share": 0.0026234682213575056,
+      "cleared_share": 0.4049908424908425,
+      "share_of_oracle": 1.0
+    },
+    {
+      "volume": "Perfect foresight (oracle)",
+      "price": "shaded",
+      "runs": 1,
+      "saving_inr": 30254.1305,
+      "saving_sd_inr": 0.0,
+      "saving_inr_per_household_year": 2528.103853594322,
+      "traded_kwh": 5507.976,
+      "overcommit_kwh": 0.0,
+      "mean_price_inr": 5.75,
+      "price_sd_inr": 0.0,
+      "loss_share": 0.0026234682213575056,
+      "cleared_share": 0.4049908424908425,
+      "share_of_oracle": 1.0
+    },
+    {
+      "volume": "Perfect foresight (oracle)",
+      "price": "random",
+      "runs": 5,
+      "saving_inr": 30225.818404,
+      "saving_sd_inr": 6.811799230728248,
+      "saving_inr_per_household_year": 2525.7380305540296,
+      "traded_kwh": 5500.1272,
+      "overcommit_kwh": 0.0,
+      "mean_price_inr": 6.418714710672104,
+      "price_sd_inr": 0.37864067632076975,
+      "loss_share": 0.002212783329233825,
+      "cleared_share": 0.4049908424908425,
+      "share_of_oracle": 1.0
+    }
+  ],
+  "wheeling": {
+    "seasonal_naive": {
+      "wheeling_paise": [
+        0,
+        50,
+        100,
+        150,
+        200,
+        250,
+        300,
+        350,
+        400,
+        450,
+        500,
+        548
+      ],
+      "saving_inr": [
+        12889.3765,
+        10124.7885,
+        7360.2005,
+        4595.6125,
+        1831.0245,
+        -933.5635,
+        -3698.1515,
+        -6462.7395,
+        -9227.3275,
+        -11991.9155,
+        -14756.5035,
+        -17410.50798
+      ],
+      "traded_kwh": [
+        5536.431,
+        5536.431,
+        5536.431,
+        5536.431,
+        5536.431,
+        5536.431,
+        5536.431,
+        5536.431,
+        5536.431,
+        5536.431,
+        5536.431,
+        5536.431
+      ],
+      "operator_inr": [
+        -83.4325,
+        2681.1555,
+        5445.7435,
+        8210.3315,
+        10974.9195,
+        13739.5075,
+        16504.0955,
+        19268.6835,
+        22033.2715,
+        24797.8595,
+        27562.4475,
+        30216.45198
+      ],
+      "saving_zero_at_paise": 233.1156848687761
+    },
+    "newsvendor": {
+      "wheeling_paise": [
+        0,
+        50,
+        100,
+        150,
+        200,
+        250,
+        300,
+        350,
+        400,
+        450,
+        500,
+        548
+      ],
+      "saving_inr": [
+        21372.2685,
+        17903.5025,
+        14784.59025,
+        11984.1325,
+        9500.6575,
+        7332.842,
+        5450.93775,
+        3837.25,
+        2470.16575,
+        1328.93,
+        306.25275,
+        -675.51741
+      ],
+      "traded_kwh": [
+        5605.075,
+        5014.826,
+        4485.247,
+        4006.484,
+        3576.367,
+        3188.759,
+        2842.859,
+        2531.923,
+        2252.065,
+        2047.499,
+        2047.499,
+        2047.499
+      ],
+      "operator_inr": [
+        -68.655,
+        2443.849,
+        4426.37825,
+        5955.594,
+        7102.676,
+        7925.7465,
+        8485.92525,
+        8822.483,
+        8971.68775,
+        9179.4335,
+        10202.11075,
+        11183.88091
+      ],
+      "saving_zero_at_paise": 514.9730890170872
+    }
+  },
+  "loss_cost_paise_per_kwh": 1.2248721025142406,
+  "incentive_compatibility": {
+    "summary": {
+      "0.15|with PV (mostly sellers)": {
+        "shade": 0.15,
+        "group": "with PV (mostly sellers)",
+        "households_that_gain": 7,
+        "households": 10,
+        "mean_gain_inr": -41.24381699999999,
+        "max_gain_inr": 272.99685999999997,
+        "mean_others_change_inr": 29.51418900000011,
+        "mean_welfare_change_inr": -11.729627999999684
+      },
+      "0.15|without PV (buyers)": {
+        "shade": 0.15,
+        "group": "without PV (buyers)",
+        "households_that_gain": 0,
+        "households": 14,
+        "mean_gain_inr": -220.99307428571424,
+        "max_gain_inr": 0.0,
+        "mean_others_change_inr": 204.8235964285715,
+        "mean_welfare_change_inr": -16.169477857142674
+      },
+      "0.4|with PV (mostly sellers)": {
+        "shade": 0.4,
+        "group": "with PV (mostly sellers)",
+        "households_that_gain": 8,
+        "households": 10,
+        "mean_gain_inr": 90.30828600000001,
+        "max_gain_inr": 725.77214,
+        "mean_others_change_inr": -100.2806649999998,
+        "mean_welfare_change_inr": -9.972378999999638
+      },
+      "0.4|without PV (buyers)": {
+        "shade": 0.4,
+        "group": "without PV (buyers)",
+        "households_that_gain": 0,
+        "households": 14,
+        "mean_gain_inr": -220.9767607142857,
+        "max_gain_inr": 0.0,
+        "mean_others_change_inr": 204.80683928571435,
+        "mean_welfare_change_inr": -16.16992142857121
+      }
+    },
+    "deviations": [
+      {
+        "household": 1,
+        "shade": 0.15,
+        "gain_inr": -1172.79525,
+        "others_change_inr": 962.7777500000002,
+        "welfare_change_inr": -210.01749999999993
+      },
+      {
+        "household": 1,
+        "shade": 0.4,
+        "gain_inr": -1172.79525,
+        "others_change_inr": 962.7777500000002,
+        "welfare_change_inr": -210.01749999999993
+      },
+      {
+        "household": 2,
+        "shade": 0.15,
+        "gain_inr": 34.32996,
+        "others_change_inr": -16.62201000000016,
+        "welfare_change_inr": 17.707949999999983
+      },
+      {
+        "household": 2,
+        "shade": 0.4,
+        "gain_inr": 131.21704,
+        "others_change_inr": -111.45548999999977,
+        "welfare_change_inr": 19.76155000000017
+      },
+      {
+        "household": 3,
+        "shade": 0.15,
+        "gain_inr": -157.6795,
+        "others_change_inr": 210.60325000000014,
+        "welfare_change_inr": 52.92374999999993
+      },
+      {
+        "household": 3,
+        "shade": 0.4,
+        "gain_inr": -157.6795,
+        "others_change_inr": 210.60325000000014,
+        "welfare_change_inr": 52.92374999999993
+      },
+      {
+        "household": 4,
+        "shade": 0.15,
+        "gain_inr": 226.23941000000013,
+        "others_change_inr": -222.2397099999998,
+        "welfare_change_inr": 3.9997000000003027
+      },
+      {
+        "household": 4,
+        "shade": 0.4,
+        "gain_inr": 599.50909,
+        "others_change_inr": -592.8437899999997,
+        "welfare_change_inr": 6.66530000000057
+      },
+      {
+        "household": 5,
+        "shade": 0.15,
+        "gain_inr": -770.27775,
+        "others_change_inr": 652.9132500000003,
+        "welfare_change_inr": -117.36449999999968
+      },
+      {
+        "household": 5,
+        "shade": 0.4,
+        "gain_inr": -770.27775,
+        "others_change_inr": 652.9132500000003,
+        "welfare_change_inr": -117.36449999999968
+      },
+      {
+        "household": 6,
+        "shade": 0.15,
+        "gain_inr": -450.5765,
+        "others_change_inr": 474.9470000000002,
+        "welfare_change_inr": 24.370499999999993
+      },
+      {
+        "household": 6,
+        "shade": 0.4,
+        "gain_inr": -450.5765,
+        "others_change_inr": 474.9470000000002,
+        "welfare_change_inr": 24.370499999999993
+      },
+      {
+        "household": 7,
+        "shade": 0.15,
+        "gain_inr": -296.90413,
+        "others_change_inr": 330.1042800000002,
+        "welfare_change_inr": 33.200150000000576
+      },
+      {
+        "household": 7,
+        "shade": 0.4,
+        "gain_inr": -271.51837,
+        "others_change_inr": 305.44272000000024,
+        "welfare_change_inr": 33.92435000000023
+      },
+      {
+        "household": 8,
+        "shade": 0.15,
+        "gain_inr": -835.6067400000001,
+        "others_change_inr": 643.8896700000003,
+        "welfare_change_inr": -191.7170699999997
+      },
+      {
+        "household": 8,
+        "shade": 0.4,
+        "gain_inr": -835.49607,
+        "others_change_inr": 643.7775700000002,
+        "welfare_change_inr": -191.71849999999995
+      },
+      {
+        "household": 9,
+        "shade": 0.15,
+        "gain_inr": -110.03575,
+        "others_change_inr": 157.69600000000003,
+        "welfare_change_inr": 47.660249999999905
+      },
+      {
+        "household": 9,
+        "shade": 0.4,
+        "gain_inr": -110.03575,
+        "others_change_inr": 157.69600000000003,
+        "welfare_change_inr": 47.660249999999905
+      },
+      {
+        "household": 10,
+        "shade": 0.15,
+        "gain_inr": -6.733499999999992,
+        "others_change_inr": 19.68608000000006,
+        "welfare_change_inr": 12.952580000000125
+      },
+      {
+        "household": 10,
+        "shade": 0.4,
+        "gain_inr": 39.863500000000016,
+        "others_change_inr": -25.661079999999885,
+        "welfare_change_inr": 14.20242000000053
+      },
+      {
+        "household": 11,
+        "shade": 0.15,
+        "gain_inr": -57.57675,
+        "others_change_inr": 67.66924999999995,
+        "welfare_change_inr": 10.092500000000655
+      },
+      {
+        "household": 11,
+        "shade": 0.4,
+        "gain_inr": -57.57675,
+        "others_change_inr": 67.66924999999995,
+        "welfare_change_inr": 10.092500000000655
+      },
+      {
+        "household": 12,
+        "shade": 0.15,
+        "gain_inr": 26.09568,
+        "others_change_inr": -24.99236999999991,
+        "welfare_change_inr": 1.1033100000004197
+      },
+      {
+        "household": 12,
+        "shade": 0.4,
+        "gain_inr": 69.37632,
+        "others_change_inr": -66.44313000000002,
+        "welfare_change_inr": 2.93319000000065
+      },
+      {
+        "household": 13,
+        "shade": 0.15,
+        "gain_inr": -147.90325,
+        "others_change_inr": 130.08325000000005,
+        "welfare_change_inr": -17.81999999999971
+      },
+      {
+        "household": 13,
+        "shade": 0.4,
+        "gain_inr": -147.90325,
+        "others_change_inr": 130.08325000000005,
+        "welfare_change_inr": -17.81999999999971
+      },
+      {
+        "household": 14,
+        "shade": 0.15,
+        "gain_inr": -171.86675,
+        "others_change_inr": 155.7765,
+        "welfare_change_inr": -16.090249999999287
+      },
+      {
+        "household": 14,
+        "shade": 0.4,
+        "gain_inr": -171.86675,
+        "others_change_inr": 155.7765,
+        "welfare_change_inr": -16.090249999999287
+      },
+      {
+        "household": 15,
+        "shade": 0.15,
+        "gain_inr": -17.41575,
+        "others_change_inr": 19.340750000000014,
+        "welfare_change_inr": 1.925000000000182
+      },
+      {
+        "household": 15,
+        "shade": 0.4,
+        "gain_inr": -17.41575,
+        "others_change_inr": 19.340750000000014,
+        "welfare_change_inr": 1.925000000000182
+      },
+      {
+        "household": 16,
+        "shade": 0.15,
+        "gain_inr": -28.13525,
+        "others_change_inr": 26.039750000000012,
+        "welfare_change_inr": -2.095499999999447
+      },
+      {
+        "household": 16,
+        "shade": 0.4,
+        "gain_inr": -28.13525,
+        "others_change_inr": 26.039750000000012,
+        "welfare_change_inr": -2.095499999999447
+      },
+      {
+        "household": 17,
+        "shade": 0.15,
+        "gain_inr": -5.96475,
+        "others_change_inr": 6.0802499999999995,
+        "welfare_change_inr": 0.11549999999988358
+      },
+      {
+        "household": 17,
+        "shade": 0.4,
+        "gain_inr": -5.96475,
+        "others_change_inr": 6.0802499999999995,
+        "welfare_change_inr": 0.11549999999988358
+      },
+      {
+        "household": 18,
+        "shade": 0.15,
+        "gain_inr": -3.67579,
+        "others_change_inr": 3.603350000000195,
+        "welfare_change_inr": -0.07243999999991502
+      },
+      {
+        "household": 18,
+        "shade": 0.4,
+        "gain_inr": -3.4474,
+        "others_change_inr": 3.3687500000000625,
+        "welfare_change_inr": -0.07864999999947031
+      },
+      {
+        "household": 19,
+        "shade": 0.15,
+        "gain_inr": 38.273089999999996,
+        "others_change_inr": -37.078759999999875,
+        "welfare_change_inr": 1.1943300000002637
+      },
+      {
+        "household": 19,
+        "shade": 0.4,
+        "gain_inr": 101.75040999999999,
+        "others_change_inr": -98.57523999999975,
+        "welfare_change_inr": 3.175170000000435
+      },
+      {
+        "household": 20,
+        "shade": 0.15,
+        "gain_inr": 0.0,
+        "others_change_inr": 0.0,
+        "welfare_change_inr": 0.0
+      },
+      {
+        "household": 20,
+        "shade": 0.4,
+        "gain_inr": 0.0,
+        "others_change_inr": 0.0,
+        "welfare_change_inr": 0.0
+      },
+      {
+        "household": 21,
+        "shade": 0.15,
+        "gain_inr": 87.10942,
+        "others_change_inr": -85.63669999999996,
+        "welfare_change_inr": 1.4727200000006633
+      },
+      {
+        "household": 21,
+        "shade": 0.4,
+        "gain_inr": 231.58357999999998,
+        "others_change_inr": -227.66829999999976,
+        "welfare_change_inr": 3.915280000000166
+      },
+      {
+        "household": 22,
+        "shade": 0.15,
+        "gain_inr": 272.99685999999997,
+        "others_change_inr": -271.3121699999999,
+        "welfare_change_inr": 1.684690000000046
+      },
+      {
+        "household": 22,
+        "shade": 0.4,
+        "gain_inr": 725.77214,
+        "others_change_inr": -721.2933299999999,
+        "welfare_change_inr": 4.4788100000005215
+      },
+      {
+        "household": 23,
+        "shade": 0.15,
+        "gain_inr": 0.0,
+        "others_change_inr": 0.0,
+        "welfare_change_inr": 0.0
+      },
+      {
+        "household": 23,
+        "shade": 0.4,
+        "gain_inr": 0.0,
+        "others_change_inr": 0.0,
+        "welfare_change_inr": 0.0
+      },
+      {
+        "household": 24,
+        "shade": 0.15,
+        "gain_inr": 41.76177999999999,
+        "others_change_inr": -40.656419999999855,
+        "welfare_change_inr": 1.1053600000004735
+      },
+      {
+        "household": 24,
+        "shade": 0.4,
+        "gain_inr": 111.02521999999999,
+        "others_change_inr": -108.0865799999998,
+        "welfare_change_inr": 2.938640000000305
+      }
+    ]
+  },
+  "runtime_s": 39,
+  "quick": false
+}

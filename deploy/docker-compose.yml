@@ -1,0 +1,24 @@
+# The interactive market on one host:  docker compose -f deploy/docker-compose.yml up --build
+# Then open http://<host>:3000. Written for any Docker host; not run on the development machine.
+# On-chain anchoring is off here (LEM_CHAIN=0); add an Anvil service or point LEM_RPC at a
+# testnet with a deployed EnergyMarket to turn it on (see README, "Deploying to Polygon Amoy").
+services:
+  engine:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.engine
+    environment:
+      LEM_CHAIN: "0"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.web
+    environment:
+      SIM_URL: http://engine:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - engine
+    restart: unless-stopped

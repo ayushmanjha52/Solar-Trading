@@ -11,6 +11,7 @@ const LINKS = [
   { href: "/trade", label: "Trade" },
   { href: "/households", label: "Households" },
   { href: "/settlement", label: "Settlement" },
+  { href: "/results", label: "Results" },
   { href: "/method", label: "Method" },
 ];
 

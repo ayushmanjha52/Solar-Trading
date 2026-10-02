@@ -1,0 +1,19 @@
+# Next.js website. Talks to the engine at SIM_URL.
+# Written for any Docker host; not run on the development machine (no Docker there).
+FROM node:20-slim AS build
+WORKDIR /app/web
+COPY web/package.json web/package-lock.json ./
+RUN npm ci
+COPY web ./
+COPY config /app/config
+COPY reports /app/reports
+RUN npm run build
+
+FROM node:20-slim
+WORKDIR /app/web
+ENV NODE_ENV=production
+COPY --from=build /app/web ./
+COPY config /app/config
+COPY reports /app/reports
+EXPOSE 3000
+CMD ["npm", "run", "start"]

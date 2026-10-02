@@ -1,41 +1,46 @@
-"""Household bidding agents.
+"""Household bidding agents for the live market.
 
-Volume comes from a seasonal-naive forecast: a household expects this half
-hour to look like the same half hour yesterday. That is the weakest honest
-forecast, deliberately, until Milestone 2 earns a better one. Its errors are
-what the imbalance pass prices.
+Volume: the newsvendor quantile of the household's out-of-sample P10/P50/P90
+forecast (see sim/strategies.py), at the level set by the price the agent
+expects, which is the mean cleared price of the last day. Where no forecast
+exists the agent falls back to the seasonal-naive rule (same slot yesterday).
 
-Price is seeded random inside the band: sellers ask a little above the feed-in
-tariff, buyers bid a little below the retail ceiling. This is a placeholder
-for the strategies of Milestone 6 (truthful, shaded, forecast-driven,
-price-taker), not a claim about how households behave.
+Price: a seeded random shade from the household's reservation price, so the
+live order book has some texture. The study (sim/study.py) compares this with
+truthful and shaded pricing.
 """
 
 from __future__ import annotations
 
-import random
-
-from market.orders import Order, Side, Tariff
+from market.orders import Order, Tariff
+from sim import strategies
 from sim.config import SimConfig
 from sim.data import SLOTS, EnergyData
 
 
 def forecast_net_wh(data: EnergyData, h: int, g: int) -> int:
+    """Seasonal naive: the same slot yesterday."""
     return data.net_wh(h, g - SLOTS)
 
 
+def position_wh(cfg: SimConfig, data: EnergyData, forecasts, tariff: Tariff, h: int, g: int,
+                expected_price: float) -> float:
+    if forecasts is not None and cfg.volume_rule != "seasonal_naive":
+        q3 = forecasts.get(h, g)
+        if q3 is not None:
+            if cfg.volume_rule == "p50":
+                return float(q3[1])
+            return strategies.newsvendor_position(q3, expected_price, tariff)
+    return float(forecast_net_wh(data, h, g))
+
+
 def agent_orders(cfg: SimConfig, data: EnergyData, tariff: Tariff, households: list[int], g: int,
-                 next_seq) -> list[Order]:
+                 next_seq, forecasts=None, expected_price: float | None = None) -> list[Order]:
+    p_hat = expected_price if expected_price is not None else (tariff.floor + tariff.ceiling) / 2
     orders = []
-    span = tariff.ceiling - tariff.floor
     for h in households:
-        f = forecast_net_wh(data, h, g)
-        if abs(f) < cfg.min_order_wh:
-            continue
-        rng = random.Random(f"price:{cfg.seed}:{g}:{h}")
-        shade = round(rng.random() * cfg.price_spread * span)
-        if f > 0:
-            orders.append(Order(f"g{g}-h{h}-agent", h, Side.SELL, f, tariff.floor + shade, next_seq()))
-        else:
-            orders.append(Order(f"g{g}-h{h}-agent", h, Side.BUY, -f, tariff.ceiling - shade, next_seq()))
+        pos = position_wh(cfg, data, forecasts, tariff, h, g, p_hat)
+        o = strategies.order_for(h, g, pos, cfg.price_rule, tariff, cfg.price_spread, cfg.seed, 0, cfg.min_order_wh)
+        if o is not None:
+            orders.append(Order(o.order_id, o.household, o.side, o.qty_wh, o.price, next_seq()))
     return orders

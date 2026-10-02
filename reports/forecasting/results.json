@@ -1,0 +1,239 @@
+{
+  "task": "net energy of one household, 2 half-hours ahead of the last meter reading (the market's gate)",
+  "splits": {
+    "train": "2010-07-08..2012-06-30",
+    "val": "2012-07-01..2012-09-30",
+    "test": "2012-10-01..2013-06-30"
+  },
+  "units": "Wh per half hour",
+  "validation_pinball_wh": {
+    "XGBoost + calibrated quantiles": 68.34442459598921,
+    "LSTM quantile": 77.43649272997436,
+    "Seasonal naive + residual quantiles": 110.62631277677136
+  },
+  "market_model": "XGBoost + calibrated quantiles",
+  "tables": {
+    "Feeder, as simulated": {
+      "rows": [
+        {
+          "model": "Persistence",
+          "mae_wh": 226.39670456857957,
+          "mae_ci_wh": [
+            222.16298728759665,
+            230.70794851126882
+          ],
+          "rmse_wh": 435.2332387734086,
+          "skill_vs_persistence": 0.0,
+          "pinball_wh": null,
+          "coverage_80": null,
+          "note": ""
+        },
+        {
+          "model": "Seasonal naive",
+          "mae_wh": 226.5317333129833,
+          "mae_ci_wh": [
+            219.33860168332825,
+            233.2133826821327
+          ],
+          "rmse_wh": 422.13718092641716,
+          "skill_vs_persistence": -0.0005964253970085487,
+          "pinball_wh": null,
+          "coverage_80": null,
+          "note": "the agents' forecast before this milestone"
+        },
+        {
+          "model": "Weekly naive",
+          "mae_wh": 241.67848557692307,
+          "mae_ci_wh": [
+            234.6173076923077,
+            248.93757917429792
+          ],
+          "rmse_wh": 439.6423650354677,
+          "skill_vs_persistence": -0.06750001523858029,
+          "pinball_wh": null,
+          "coverage_80": null,
+          "note": ""
+        },
+        {
+          "model": "Seasonal naive + residual quantiles",
+          "mae_wh": 226.53215939153438,
+          "mae_ci_wh": [
+            219.33947323654354,
+            233.21364755036632
+          ],
+          "rmse_wh": 422.1373009847414,
+          "skill_vs_persistence": -0.0005983073968012231,
+          "pinball_wh": 87.49273716252883,
+          "coverage_80": 0.7909321581196581,
+          "note": "probabilistic baseline"
+        },
+        {
+          "model": "XGBoost point",
+          "mae_wh": 166.64385986328125,
+          "mae_ci_wh": [
+            162.50381234661862,
+            170.58078327343566
+          ],
+          "rmse_wh": 293.8180236816406,
+          "skill_vs_persistence": 0.2639297842979431,
+          "pinball_wh": null,
+          "coverage_80": null,
+          "note": "squared error"
+        },
+        {
+          "model": "XGBoost + calibrated quantiles",
+          "mae_wh": 159.0744740433515,
+          "mae_ci_wh": [
+            154.53218764838283,
+            163.47094134738427
+          ],
+          "rmse_wh": 308.0619091318532,
+          "skill_vs_persistence": 0.297364003833523,
+          "pinball_wh": 53.952127752730405,
+          "coverage_80": 0.7813549297924298,
+          "note": "point + learned error scale, calibrated on validation"
+        },
+        {
+          "model": "LSTM quantile",
+          "mae_wh": 180.31338500976562,
+          "mae_ci_wh": [
+            175.76745630283864,
+            184.77395594027806
+          ],
+          "rmse_wh": 349.8851013183594,
+          "skill_vs_persistence": 0.20355117321014404,
+          "pinball_wh": 60.51982074756577,
+          "coverage_80": 0.8074283933658933,
+          "note": "pinball; P50 as point"
+        },
+        {
+          "model": "XGBoost + calibrated quantiles + target-slot weather (ORACLE)",
+          "mae_wh": 158.85605964550024,
+          "mae_ci_wh": [
+            154.3113169253365,
+            163.25721027357093
+          ],
+          "rmse_wh": 307.1708065064969,
+          "skill_vs_persistence": 0.29832874578181,
+          "pinball_wh": 53.82530094887491,
+          "coverage_80": 0.780149827024827,
+          "note": "NOT DEPLOYABLE: uses weather nobody had at bid time"
+        }
+      ],
+      "n": 314496,
+      "households": 24
+    },
+    "PV households, sun up": {
+      "rows": [
+        {
+          "model": "Persistence",
+          "mae_wh": 232.92865408751007,
+          "mae_ci_wh": [
+            229.51116004819585,
+            236.89634584419449
+          ],
+          "rmse_wh": 395.4599115126304,
+          "skill_vs_persistence": 0.0,
+          "pinball_wh": null,
+          "coverage_80": null,
+          "note": ""
+        },
+        {
+          "model": "Seasonal naive",
+          "mae_wh": 278.86640730507315,
+          "mae_ci_wh": [
+            270.93283921994947,
+            288.6159729996279
+          ],
+          "rmse_wh": 473.17628160495195,
+          "skill_vs_persistence": -0.19721812843302877,
+          "pinball_wh": null,
+          "coverage_80": null,
+          "note": "the agents' forecast before this milestone"
+        },
+        {
+          "model": "Weekly naive",
+          "mae_wh": 293.54447323588784,
+          "mae_ci_wh": [
+            285.7757542564223,
+            302.9536576331902
+          ],
+          "rmse_wh": 489.8428906375231,
+          "skill_vs_persistence": -0.2602334151881749,
+          "pinball_wh": null,
+          "coverage_80": null,
+          "note": ""
+        },
+        {
+          "model": "Seasonal naive + residual quantiles",
+          "mae_wh": 278.8671302725325,
+          "mae_ci_wh": [
+            270.9317724445373,
+            288.6161198545962
+          ],
+          "rmse_wh": 473.17663353181166,
+          "skill_vs_persistence": -0.19722123224806687,
+          "pinball_wh": 103.38292275701133,
+          "coverage_80": 0.8122694497334804,
+          "note": "probabilistic baseline"
+        },
+        {
+          "model": "XGBoost point",
+          "mae_wh": 180.30540466308594,
+          "mae_ci_wh": [
+            176.57798820705315,
+            184.06296433152485
+          ],
+          "rmse_wh": 300.7865295410156,
+          "skill_vs_persistence": 0.22592002153396606,
+          "pinball_wh": null,
+          "coverage_80": null,
+          "note": "squared error"
+        },
+        {
+          "model": "XGBoost + calibrated quantiles",
+          "mae_wh": 172.9136540770475,
+          "mae_ci_wh": [
+            168.82102433696681,
+            177.4024006571197
+          ],
+          "rmse_wh": 314.76722219472066,
+          "skill_vs_persistence": 0.25765400244795666,
+          "pinball_wh": 58.551471156826125,
+          "coverage_80": 0.7706678024175269,
+          "note": "point + learned error scale, calibrated on validation"
+        },
+        {
+          "model": "LSTM quantile",
+          "mae_wh": 184.1318359375,
+          "mae_ci_wh": [
+            180.02376061467493,
+            188.48655023544995
+          ],
+          "rmse_wh": 332.2392883300781,
+          "skill_vs_persistence": 0.20949256420135498,
+          "pinball_wh": 62.858915750580984,
+          "coverage_80": 0.800674531025564,
+          "note": "pinball; P50 as point"
+        },
+        {
+          "model": "XGBoost + calibrated quantiles + target-slot weather (ORACLE)",
+          "mae_wh": 171.70450677613437,
+          "mae_ci_wh": [
+            167.56364457185464,
+            176.15681466985833
+          ],
+          "rmse_wh": 313.35036637487065,
+          "skill_vs_persistence": 0.2628450653751432,
+          "pinball_wh": 58.14579039935106,
+          "coverage_80": 0.7700569784255057,
+          "note": "NOT DEPLOYABLE: uses weather nobody had at bid time"
+        }
+      ],
+      "n": 838212,
+      "households": 124
+    }
+  },
+  "runtime_s": 1110,
+  "quick": false
+}
