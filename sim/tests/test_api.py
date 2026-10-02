@@ -47,6 +47,32 @@ def test_order_round_trip(client):
     assert o["status"] == "settled" and "settlement" in o
 
 
+def test_clock_is_open_without_an_admin_token(client, monkeypatch):
+    monkeypatch.delenv("LEM_ADMIN_TOKEN", raising=False)
+    assert client.get("/api/clock").json()["controls_locked"] is False
+    assert client.post("/api/clock", json={"action": "pause"}).status_code == 200
+
+
+def test_public_deployment_locks_the_shared_clock(client, monkeypatch):
+    monkeypatch.setenv("LEM_ADMIN_TOKEN", "s3cret")
+    assert client.get("/api/clock").json()["controls_locked"] is True
+    r = client.post("/api/clock", json={"action": "jump", "day": "2012-12-01"})
+    assert r.status_code == 403 and "operator" in r.json()["detail"]
+    assert client.post("/api/clock", json={"action": "pause"}, headers={"X-Admin-Token": "wrong"}).status_code == 403
+    assert client.post("/api/clock", json={"action": "pause"}, headers={"X-Admin-Token": "s3cret"}).status_code == 200
+    # Visitors can still trade.
+    g = client.get("/api/live").json()["clock"]["g"] + 1
+    r = client.post("/api/orders", json={"household": 9, "g": g, "side": "buy", "qty_wh": 300, "price": 700})
+    assert r.status_code == 201
+
+
+def test_one_household_cannot_flood_a_slot(client):
+    g = client.get("/api/live").json()["clock"]["g"] + 3
+    codes = [client.post("/api/orders", json={"household": 11, "g": g, "side": "buy", "qty_wh": 100, "price": 700}).status_code
+             for _ in range(7)]
+    assert codes[:5] == [201] * 5 and codes[5:] == [422, 422]
+
+
 def test_step_settles_and_ledger_verifies(client):
     client.post("/api/clock", json={"action": "step"})
     ledger = client.get("/api/ledger").json()

@@ -5,17 +5,23 @@
 The live order book is held in this process's memory. In production that is
 Redis's job (and settled history is Postgres's); neither is needed while one
 process owns the whole feeder, and neither is installed on the dev machine.
+
+Public deployments set LEM_ADMIN_TOKEN. The clock is shared by every visitor,
+so pausing, stepping, changing speed or jumping to another day then requires
+that token in the X-Admin-Token header. Without the variable (local
+development) the controls are open.
 """
 
 from __future__ import annotations
 
+import hmac
 import os
 import threading
 import time
 from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 
 from sim import views
@@ -144,6 +150,16 @@ def cancel_order(order_id: str):
     return {"cancelled": order_id}
 
 
+def admin_token() -> str | None:
+    return os.environ.get("LEM_ADMIN_TOKEN") or None
+
+
+def require_operator(token: str | None) -> None:
+    expected = admin_token()
+    if expected and not hmac.compare_digest((token or "").encode(), expected.encode()):
+        raise HTTPException(403, "The clock is shared by every visitor, so only the operator can change it.")
+
+
 @app.get("/api/clock")
 def get_clock():
     sim = get()
@@ -159,7 +175,8 @@ class ClockIn(BaseModel):
 
 
 @app.post("/api/clock")
-def control_clock(c: ClockIn):
+def control_clock(c: ClockIn, x_admin_token: str | None = Header(default=None)):
+    require_operator(x_admin_token)
     sim = get()
     if c.action == "pause":
         sim.paused = True

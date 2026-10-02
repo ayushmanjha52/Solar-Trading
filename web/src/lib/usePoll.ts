@@ -49,20 +49,25 @@ export function usePoll<T>(url: string | null, intervalMs = 1000) {
   return { data, error, refresh: () => kick.current() };
 }
 
-export async function postJson<T>(url: string, body: unknown, method = "POST"): Promise<{ ok: boolean; data: T | null; error: string | null }> {
+export async function postJson<T>(
+  url: string,
+  body: unknown,
+  method = "POST",
+  extraHeaders: Record<string, string> = {},
+): Promise<{ ok: boolean; data: T | null; error: string | null; status?: number }> {
   try {
     const r = await fetch(url, {
       method,
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", ...extraHeaders },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
     const data = await r.json().catch(() => null);
     if (!r.ok) {
       const detail = data?.detail;
       const msg = typeof detail === "string" ? detail : Array.isArray(detail) ? detail.map((d) => d.msg).join(" ") : null;
-      return { ok: false, data: null, error: msg ?? `Request failed (${r.status}).` };
+      return { ok: false, data: null, error: msg ?? `Request failed (${r.status}).`, status: r.status };
     }
-    return { ok: true, data: data as T, error: null };
+    return { ok: true, data: data as T, error: null, status: r.status };
   } catch {
     return { ok: false, data: null, error: "The web server is not responding." };
   }

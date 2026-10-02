@@ -143,6 +143,8 @@ export interface Clock {
   first_day: string;
   last_day: string;
   chain: ChainStatus;
+  /** True on public deployments: changing the shared clock needs the operator token. */
+  controls_locked?: boolean;
 }
 
 export interface OpenBook {
