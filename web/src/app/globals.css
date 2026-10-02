@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Utility annunciator convention. Each colour means one thing and never anything else. */
+:root {
+  --panel-base: #12161b;   /* graphite panel body */
+  --panel-raised: #1c232b; /* card and module surfaces */
+  --panel-etch: #2a3440;   /* engraved divider lines */
+  --label: #e8edf2;        /* primary text */
+  --label-muted: #6e7a87;  /* legends, units, secondary */
+  --flow-export: #f2a93b;  /* amber: energy injected / selling */
+  --flow-import: #3fb8af;  /* cyan: energy drawn / buying */
+  --state-alarm: #c8433b;  /* band violation, settlement mismatch */
+  --state-armed: #7fb069;  /* slot settled and verified */
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: var(--panel-base);
+  color: var(--label);
+}
+
+body {
+  font-family: var(--font-sans), sans-serif;
+}
+
+/* Data face: every kWh, rupee and timestamp. Fixed-width digits so live values do not jitter. */
+.num {
+  font-family: var(--font-mono), monospace;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Display face, used rarely: section headers and the hero figure. */
+.display {
+  font-family: var(--font-display), sans-serif;
+  font-stretch: 125%;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.hero-figure {
+  font-family: var(--font-display), sans-serif;
+  font-stretch: 125%;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  font-variant-numeric: proportional-nums;
+}
+
+.legend {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--label-muted);
+}
+
+:focus-visible {
+  outline: 1px solid var(--label);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--panel-etch);
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+/* Recharts: keep the chart chrome recessive and in the data face. */
+.recharts-cartesian-axis-tick-value {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  fill: var(--label-muted);
+}
+.recharts-label {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

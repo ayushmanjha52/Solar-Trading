@@ -1,0 +1,22 @@
+[profile.default]
+src = "src"
+test = "test"
+script = "script"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.24"
+optimizer = true
+optimizer_runs = 200
+evm_version = "cancun"
+# Deploy.s.sol reads the shared tariff config and writes deployment addresses.
+fs_permissions = [
+  { access = "read", path = "../config" },
+  { access = "read-write", path = "./deployments" },
+]
+
+[rpc_endpoints]
+local = "http://127.0.0.1:8545"
+amoy = "${AMOY_RPC_URL}"
+
+[etherscan]
+amoy = { key = "${POLYGONSCAN_API_KEY}", url = "https://api-amoy.polygonscan.com/api", chain = 80002 }
