@@ -29,6 +29,8 @@ class SimConfig:
     # at seeded random prices inside the band. Milestone 6 replaces this with
     # strategies; Milestone 2 replaces the forecast.
     min_order_wh: int = 40
+    volume_rule: str = "newsvendor"  # or "p50", "seasonal_naive"; see sim/strategies.py
+    price_rule: str = "random"  # or "truthful", "shaded"
     price_spread: float = 0.55  # share of the band an agent's price may wander from its own tariff edge
 
     slot_seconds: float = 5.0  # wall-clock seconds per simulated half hour

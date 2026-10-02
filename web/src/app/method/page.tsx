@@ -37,11 +37,11 @@ export default function MethodPage() {
     ["Clearing, losses, settlement", "Real computation", "Integer Wh and paise; 960+ unit and property tests."],
     ["Feeder topology", "Simulated", "Ausgrid publishes postcodes, not networks. Positions along a 420 m backbone and service lengths are seeded random."],
     ["Who has PV", "Simulated", "Every Ausgrid home has PV. 10 of 24 keep it; 14 keep their real load with generation removed, so there are buyers at noon."],
-    ["Bidding agents", "Simulated", "Volume from a seasonal-naive forecast (same slot yesterday); price seeded random inside the band."],
+    ["Bidding agents", "Simulated", "Volume: the newsvendor quantile of an out-of-sample P10/P50/P90 forecast. Price: seeded random shade from the reservation price."],
+    ["Forecasts", "Real computation", "Trained on 2010-12, tested once on 2012-13 against persistence and naive baselines. See Results."],
+    ["Strategy and wheeling study", "Real computation", "Six-month backtests of strategies, wheeling charges and unilateral deviations. See Results."],
     ["The clock", "Simulated", "One half hour every few seconds, replaying spring and summer 2012-13."],
-    ["Learned forecasts", "Not built", "Milestone 2. Agents use the weakest honest forecast until a better one is earned against baselines."],
     ["Public testnet deployment", "Not built", "Polygon Amoy needs a funded key you hold. A local Anvil chain anchors the same transactions when it is running."],
-    ["Strategy and wheeling study", "Not built", "Milestone 6: which strategies win, and the wheeling charge at which the market stops clearing."],
     ["Durable storage", "Not built", "The live book and recent history live in the engine's memory (Redis and Postgres in production)."],
   ];
 
@@ -216,10 +216,9 @@ export default function MethodPage() {
 
       <Section id="limits" title="Known limits">
         <ul className="list-disc space-y-2 pl-5 marker:text-label-muted">
-          <li>Forecasts are seasonal naive. Learned and probabilistic forecasts are Milestone 2 and must beat this baseline on the same test window.</li>
-          <li>ERA5 weather is reanalysis: what the weather was, not what a household could have known at 23:00. It must not be fed to a forecaster as if it were a forecast.</li>
+          <li>Forecasts are two slots ahead and use no weather, because no weather forecast archive covers 2012-13. ERA5 is reanalysis: what the weather was, not what a household could have known. It appears on the Results page only as a labelled oracle.</li>
           <li>Flow allocation is greedy nearest-first, not the loss-minimising transport solution.</li>
-          <li>Agent prices are seeded random inside the band; incentive compatibility under real strategies is untested until Milestone 6.</li>
+          <li>Agent prices in the live demo are seeded random inside the band; the study tests truthful and shaded pricing and unilateral deviations, over two months for incentive compatibility.</li>
           <li>The feeder is synthetic and the PV share is chosen. Real penetration and topology would change volumes and losses.</li>
           <li>History is kept in memory for three simulated days; restarting the engine restarts the market.</li>
         </ul>

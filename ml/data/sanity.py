@@ -102,7 +102,7 @@ def main() -> None:
     sans, mono = load_fonts()
     customers = pd.read_parquet(config.CUSTOMERS_PARQUET)
     clean = customers[customers["clean"]]
-    report = json.loads(config.QUALITY_JSON.read_text())
+    report = json.loads(config.QUALITY_JSON.read_text(encoding="utf-8"))
     timebase = pd.read_parquet(config.DATA_PROCESSED / "timebase_check.parquet")
     lags = pd.read_parquet(config.DATA_PROCESSED / "weather_lag_check.parquet")
 

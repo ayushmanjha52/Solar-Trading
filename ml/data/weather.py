@@ -49,7 +49,7 @@ def cell_of(lat, lon) -> pd.Series | str:
 def fetch_cell(cell: str) -> dict:
     path = config.WEATHER_DIR / f"era5_nearest_{cell}.json"
     if path.exists():
-        return json.loads(path.read_text())
+        return json.loads(path.read_text(encoding="utf-8"))
     lat, lon = (float(x) for x in cell.split("_"))
     params = {
         "latitude": lat,
@@ -72,7 +72,7 @@ def fetch_cell(cell: str) -> dict:
         raise RuntimeError(f"Open-Meteo kept rate-limiting cell {cell}")
     data = r.json()
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data))
+    path.write_text(json.dumps(data), encoding="utf-8")
     time.sleep(10)  # each 3-year request costs ~80 calls against a 600/min quota
     return data
 
@@ -152,10 +152,10 @@ def main() -> None:
     weather = weather[["cell", "ts_utc"] + config.WEATHER_HOURLY_MEAN_VARS + config.WEATHER_HOURLY_INSTANT_VARS]
     weather.to_parquet(config.WEATHER_PARQUET, index=False)
 
-    report = json.loads(config.QUALITY_JSON.read_text())
+    report = json.loads(config.QUALITY_JSON.read_text(encoding="utf-8"))
     lags = check_alignment(weather, customers, report)
     report["weather_cells"] = cell_meta
-    config.QUALITY_JSON.write_text(json.dumps(report, indent=2, default=str))
+    config.QUALITY_JSON.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
     lags.to_parquet(config.DATA_PROCESSED / "weather_lag_check.parquet", index=False)
     a = report["weather_alignment"]
     print(f"check    generation vs irradiance peaks at lag {a['best_lag_half_hours']} "

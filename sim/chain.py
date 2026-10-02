@@ -80,7 +80,7 @@ class ChainClient:
         dep = DEPLOYMENTS / f"{chain_id}.json"
         if not dep.exists():
             return None
-        d = json.loads(dep.read_text())
+        d = json.loads(dep.read_text(encoding="utf-8"))
         key = os.environ.get("LEM_OPERATOR_KEY") or (ANVIL_KEY_0 if chain_id == 31337 else None)
         if key is None:
             raise ChainError(f"chain {chain_id} needs LEM_OPERATOR_KEY")

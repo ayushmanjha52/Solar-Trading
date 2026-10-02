@@ -197,6 +197,9 @@ export interface Feeder {
     pv_share: number;
     chain_id: number;
     verifying_contract: string;
+    forecast: string;
+    volume_rule: string;
+    price_rule: string;
   };
   provenance: string;
 }
@@ -216,6 +219,8 @@ export interface HouseholdSlot {
   time: string;
   status: SlotStatus;
   forecast_net_wh: number;
+  forecast_p10_wh?: number;
+  forecast_p90_wh?: number;
   contracted_export_wh?: number;
   contracted_import_wh?: number;
   price?: number | null;
@@ -247,6 +252,7 @@ export interface HouseholdView {
   household: Household;
   day: string;
   clock: Clock;
+  forecast_label: string;
   slots: HouseholdSlot[];
   totals: {
     sold_wh: number;
@@ -259,7 +265,15 @@ export interface HouseholdView {
     long_slots: number;
   };
   orders: UserOrder[];
-  upcoming: { g: number; day: string; slot: number; time: string; forecast_net_wh: number }[];
+  upcoming: {
+    g: number;
+    day: string;
+    slot: number;
+    time: string;
+    forecast_net_wh: number;
+    forecast_p10_wh?: number;
+    forecast_p90_wh?: number;
+  }[];
 }
 
 export interface LedgerRow extends SlotSummary {

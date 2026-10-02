@@ -3,15 +3,19 @@
 
 PY ?= .venv/bin/python
 
-.PHONY: setup data test demo
+.PHONY: setup data results test demo
 
 setup:
 	python3.11 -m venv .venv
-	$(PY) -m pip install -r sim/requirements.txt pytest==8.3.4
+	$(PY) -m pip install -r sim/requirements.txt
 	cd web && npm install --no-audit --no-fund
 
 data:
 	$(PY) -m ml.data
+
+results: data
+	$(PY) -m ml.evaluate
+	$(PY) -m sim.study
 
 test:
 	$(PY) -m pytest ml market sim -q

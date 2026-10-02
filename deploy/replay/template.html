@@ -1,0 +1,381 @@
+<title>Feeder Replay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,600;125,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a substation mimic panel. Ruler on top, the feeder in the middle, readouts in modules below. */
+:root {
+  --panel-base: #12161b; --panel-raised: #1c232b; --panel-etch: #2a3440;
+  --label: #e8edf2; --label-muted: #6e7a87;
+  --flow-export: #f2a93b; --flow-import: #3fb8af; --state-alarm: #c8433b; --state-armed: #7fb069;
+  --display: "Archivo", "Arial Black", sans-serif;
+  --sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  color-scheme: dark;
+}
+html, body { background: var(--panel-base); color: var(--label); }
+body { font-family: var(--sans); font-size: 14px; line-height: 1.5; }
+.wrap { max-width: 1400px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 40px; display: grid; gap: 18px; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.display { font-family: var(--display); font-stretch: 125%; font-weight: 650; letter-spacing: -0.01em; text-wrap: balance; }
+.legend { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--label-muted); }
+.muted { color: var(--label-muted); }
+header.top { display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: end; justify-content: space-between; border-bottom: 1px solid var(--panel-etch); padding-bottom: 14px; }
+header.top h1 { margin: 0; font-size: 26px; text-transform: uppercase; }
+.mark { display: inline-block; width: 11px; height: 11px; border: 1px solid var(--flow-export); margin-right: 8px; }
+.panel { border: 1px solid var(--panel-etch); background: var(--panel-raised); min-width: 0; }
+.panel > .head { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; padding: 8px 14px; border-bottom: 1px solid var(--panel-etch); }
+.panel > .body { padding: 14px; }
+.controls { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+button { font: inherit; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--label); background: transparent; border: 1px solid var(--panel-etch); border-radius: 2px; padding: 5px 10px; cursor: pointer; }
+button:hover { border-color: var(--label-muted); }
+button[aria-pressed="true"] { background: var(--panel-etch); border-color: var(--label-muted); }
+:focus-visible { outline: 1px solid var(--label); outline-offset: 2px; }
+.ruler { display: grid; grid-template-columns: repeat(48, minmax(0, 1fr)); gap: 1px; }
+.cell { display: flex; flex-direction: column; cursor: pointer; background: none; border: 0; padding: 0; text-transform: none; letter-spacing: 0; }
+.cell .bar { height: 40px; display: flex; align-items: flex-end; justify-content: center; }
+.cell .bar i { width: 60%; background: var(--flow-export); display: block; }
+.cell .tick { height: 12px; margin-top: 4px; background: var(--panel-etch); }
+.cell.settled .tick { background: var(--state-armed); }
+.cell.failed .tick { background: var(--state-alarm); }
+.cell.current .tick { background: var(--label); }
+.cell .n { margin-top: 4px; font-size: 10px; line-height: 1; text-align: center; color: var(--label-muted); font-family: var(--mono); }
+.cell.current .n { color: var(--label); }
+@media (max-width: 900px) { .cell:not(.every4):not(.current) .n { visibility: hidden; } }
+.keys { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 10px; }
+.keys span { display: inline-flex; align-items: center; gap: 6px; }
+.keys i { display: inline-block; width: 12px; height: 8px; }
+.mimic { overflow-x: auto; }
+.mimic svg { display: block; width: 100%; min-width: 860px; }
+.grid3 { display: grid; gap: 18px; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(0, 1fr); }
+@media (max-width: 1100px) { .grid3 { grid-template-columns: minmax(0, 1fr); } }
+.hero { font-family: var(--display); font-stretch: 125%; font-weight: 700; font-size: 46px; line-height: 1; letter-spacing: -.02em; }
+.figs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 18px; margin-top: 18px; }
+.fig .v { font-family: var(--mono); font-size: 18px; margin-top: 3px; white-space: nowrap; }
+.fig .v small { font-size: 11px; color: var(--label-muted); margin-left: 4px; }
+.fig .s { font-family: var(--mono); font-size: 11px; color: var(--label-muted); }
+.ann { display: inline-block; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; border: 1px solid var(--panel-etch); color: var(--label-muted); padding: 4px 8px; }
+.ann.armed { border-color: var(--state-armed); color: var(--state-armed); }
+.ann.alarm { border-color: var(--state-alarm); color: var(--state-alarm); }
+.hash { font-family: var(--mono); word-break: break-all; }
+table { border-collapse: collapse; width: 100%; font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-weight: 400; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--label-muted); padding: 6px 10px 6px 0; }
+td { border-top: 1px solid var(--panel-etch); padding: 5px 10px 5px 0; }
+td.r, th.r { text-align: right; }
+.scroll { overflow-x: auto; }
+.exp { color: var(--flow-export); } .imp { color: var(--flow-import); } .alarm { color: var(--state-alarm); } .armed { color: var(--state-armed); }
+.totals { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px 18px; }
+@media (max-width: 900px) { .totals, .figs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+h2.sec { font-size: 18px; text-transform: uppercase; margin: 0 0 10px; }
+.prose { max-width: 70ch; }
+.prose p { margin: 0 0 10px; }
+ul.find { margin: 0; padding-left: 18px; display: grid; gap: 6px; max-width: 80ch; }
+footer { border-top: 1px solid var(--panel-etch); padding-top: 14px; font-size: 12px; color: var(--label-muted); }
+footer b { color: var(--label); font-weight: 500; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="legend"><span class="mark"></span>Local Energy Market · recorded replay</div>
+      <h1 class="display" id="title">Control room</h1>
+      <div class="legend" id="subtitle"></div>
+    </div>
+    <div class="controls" role="group" aria-label="Replay controls">
+      <button id="prev" title="Previous slot">◀ Slot</button>
+      <button id="play" aria-pressed="false">Play</button>
+      <button id="next" title="Next slot">Slot ▶</button>
+      <button id="speed2" data-speed="2">2s</button>
+      <button id="speed5" data-speed="5" aria-pressed="true">5s</button>
+      <button id="magnify" aria-pressed="false" title="Draw losses fifty times larger so the thinning is visible">Losses ×50</button>
+    </div>
+  </header>
+
+  <section class="panel">
+    <div class="head"><span class="legend">Settlement periods · bar height = energy traded</span><span class="legend">AEST · SP 01 starts 00:00</span></div>
+    <div class="body">
+      <div class="ruler" id="ruler"></div>
+      <div class="keys legend">
+        <span><i style="background:var(--state-armed)"></i>settled · verified</span>
+        <span><i style="background:var(--label)"></i>in delivery</span>
+        <span><i style="background:var(--panel-etch)"></i>not yet</span>
+        <span><i style="background:var(--state-alarm)"></i>verification failed</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="head"><span class="legend" id="mimicTitle">Feeder mimic</span><span class="legend" id="mimicNote"></span></div>
+    <div class="body mimic" id="mimic"></div>
+    <div class="keys legend" style="padding: 0 14px 12px">
+      <span><i style="border:1px solid var(--flow-export)"></i>selling (injects)</span>
+      <span><i style="border:1px solid var(--flow-import)"></i>buying (draws)</span>
+      <span><i style="background:var(--label-muted);height:3px"></i>rooftop PV</span>
+      <span>pulse width ∝ energy; it thins by the share lost as heat on its route</span>
+      <span>topology simulated; load and generation at each node real</span>
+    </div>
+  </section>
+
+  <div class="grid3">
+    <section class="panel"><div class="head"><span class="legend">Slot in delivery</span></div><div class="body" id="readout"></div></section>
+    <section class="panel"><div class="head"><span class="legend" id="bookTitle">Cleared book</span></div><div class="body"><div id="depth"></div><div class="keys legend"><span><i style="background:var(--flow-export);height:2px"></i>offers (sell)</span><span><i style="background:var(--flow-import);height:2px"></i>bids (buy)</span><span><i style="background:var(--label);width:8px;height:8px;border-radius:50%"></i>cleared</span></div></div></section>
+    <section class="panel"><div class="head"><span class="legend">Trades this slot</span></div><div class="body scroll" id="trades"></div></section>
+  </div>
+
+  <section class="panel"><div class="head"><span class="legend" id="totalsTitle">Day so far</span></div><div class="body"><div class="totals" id="totals"></div></div></section>
+
+  <section id="results" class="panel"><div class="body" id="resultsBody"></div></section>
+
+  <footer>
+    <p><b>Simulation-backed on real data.</b> There is no physical microgrid. Meters are simulated processes holding real ECDSA keys. Load and generation come from the Ausgrid Solar Home Electricity Data (Sydney, 2010–13); weather from Open-Meteo (ERA5 reanalysis). Prices are in rupees against an Indian tariff band applied to Australian households.</p>
+    <p>This page replays one day recorded from the market engine: every price, trade, loss, commitment hash and verification result below was produced by the engine, not typed. The live market, where visitors place orders and settlements are anchored on chain, runs from the project repository.</p>
+  </footer>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+(function () {
+  const R = DATA.replay, F = R.feeder, T = F.tariff, slots = R.slots;
+  const $ = (id) => document.getElementById(id);
+  const MINUS = "−";
+  const kwh = (wh, d = 3) => `${wh < 0 ? MINUS : ""}${Math.abs(wh / 1000).toFixed(d)}`;
+  const kwhS = (wh, d = 2) => (wh === 0 ? (0).toFixed(d) : `${wh > 0 ? "+" : MINUS}${Math.abs(wh / 1000).toFixed(d)}`);
+  const price = (p) => (p == null ? "—" : `₹${(p / 100).toFixed(2)}`);
+  const inr = (mp, d = 2) => { const r = mp / 1e5; return `${r < 0 ? MINUS : ""}₹${Math.abs(r).toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d })}`; };
+  const pct = (f, d = 2) => `${(f * 100).toFixed(d)}%`;
+  const short = (h, a = 18, b = 8) => (h.length > a + b + 1 ? `${h.slice(0, a)}…${h.slice(-b)}` : h);
+  const slotEnd = (t) => { const [h, m] = t.split(":").map(Number); const x = h * 60 + m + 30; return `${String(Math.floor(x / 60) % 24).padStart(2, "0")}:${String(x % 60).padStart(2, "0")}`; };
+  const pad = (n) => String(n).padStart(2, "0");
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const label = (id) => F.households.find((h) => h.id === id)?.label ?? `#${id}`;
+
+  const d = new Date(`${R.day}T00:00:00Z`);
+  const dayLabel = d.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }).toUpperCase();
+  $("subtitle").textContent = `${F.name} · ${F.households.length} households · ${dayLabel} · agents bid from ${R.sim.forecast}`;
+
+  let cur = 23, playing = false, secs = 5, magnify = false, timer = null;
+
+  // --- ruler ---------------------------------------------------------------
+  const maxVol = Math.max(2000, ...slots.map((s) => s.injected_wh));
+  function drawRuler() {
+    $("ruler").innerHTML = slots.map((s, i) => {
+      const h = s.injected_wh ? Math.max(4, (s.injected_wh / maxVol) * 100) : 0;
+      const cls = i < cur ? (s.verified ? "settled" : "failed") : i === cur ? "current" : "";
+      const tip = `SP ${pad(s.slot)} · ${s.time}–${slotEnd(s.time)} AEST · ${s.price ? price(s.price) + "/kWh · " + kwh(s.injected_wh) + " kWh" : "no trade"}`;
+      return `<button class="cell ${cls} ${s.slot % 4 === 1 ? "every4" : ""}" data-i="${i}" title="${tip}" aria-label="${tip}"><span class="bar">${h ? `<i style="height:${h}%;opacity:${i > cur ? 0.35 : 1}"></i>` : ""}</span><span class="tick"></span><span class="n">${pad(s.slot)}</span></button>`;
+    }).join("");
+  }
+  $("ruler").addEventListener("click", (e) => { const b = e.target.closest(".cell"); if (b) go(Number(b.dataset.i)); });
+
+  // --- mimic ---------------------------------------------------------------
+  const W = 1200, H = 330, BUS = 160, X0 = 104, X1 = 1164, BW = 48, BH = 38, ABOVE = 44, BELOW = 238, STUB = 16;
+  const RB = 0.32, RS = 1.15, MAG = 50;
+  function spread(des, gap, min, max) {
+    const cs = [];
+    des.forEach((x, i) => {
+      cs.push({ n: 1, sum: x, c: x });
+      while (cs.length > 1) {
+        const b = cs[cs.length - 1], a = cs[cs.length - 2];
+        if (b.c - ((b.n - 1) / 2) * gap - (a.c + ((a.n - 1) / 2) * gap) >= gap) break;
+        const m = { n: a.n + b.n, sum: a.sum + b.sum }; m.c = m.sum / m.n; cs.splice(cs.length - 2, 2, m);
+      }
+    });
+    const out = []; cs.forEach((c) => { for (let k = 0; k < c.n; k++) out.push(c.c + (k - (c.n - 1) / 2) * gap); });
+    const lo = Math.max(0, min - out[0]), hi = Math.min(0, max - out[out.length - 1]);
+    return out.map((x) => x + lo + hi);
+  }
+  const scale = (X1 - X0) / F.backbone_m;
+  const nodes = [...F.households].sort((a, b) => a.position_m - b.position_m).map((h, i) => ({ h, tap: X0 + h.position_m * scale, box: 0, above: i % 2 === 0 }));
+  [true, false].forEach((side) => { const s = nodes.filter((n) => n.above === side); const xs = spread(s.map((n) => n.tap), BW + 10, X0 + BW / 2, X1 - BW / 2); s.forEach((n, i) => (n.box = xs[i])); });
+  const byId = new Map(nodes.map((n) => [n.h.id, n]));
+  const edgeY = (n) => (n.above ? ABOVE + BH : BELOW), stubY = (n) => (n.above ? BUS - STUB : BUS + STUB);
+
+  function drawMimic(i) {
+    const s = slots[i];
+    const ticks = []; for (let m = 0; m <= F.backbone_m; m += 50) ticks.push(m);
+    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Feeder mimic: ${F.households.length} households on a ${F.backbone_m} m backbone, ${s.trades.length} trades in SP ${pad(s.slot)}">`;
+    svg += `<defs><marker id="arrow" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="#f2a93b"/></marker></defs>`;
+    svg += `<line x1="20" y1="${BUS}" x2="36" y2="${BUS}" stroke="#6e7a87" stroke-width="2"/><circle cx="50" cy="${BUS}" r="14" fill="none" stroke="#e8edf2" stroke-width="1.5"/><circle cx="70" cy="${BUS}" r="14" fill="none" stroke="#e8edf2" stroke-width="1.5"/>`;
+    svg += `<text x="60" y="${BUS - 26}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#e8edf2">TX</text><text x="60" y="${BUS + 34}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#6e7a87">11/0.415 kV</text>`;
+    svg += `<line x1="84" y1="${BUS}" x2="${X1 + 12}" y2="${BUS}" stroke="#6e7a87" stroke-width="3"/><line x1="${X1 + 12}" y1="${BUS - 8}" x2="${X1 + 12}" y2="${BUS + 8}" stroke="#6e7a87" stroke-width="2"/>`;
+    nodes.forEach((n) => {
+      const p = s.positions[n.h.id] || [0, 0];
+      const tone = p[0] ? "#f2a93b" : p[1] ? "#3fb8af" : "#2a3440";
+      const txt = p[0] ? "#f2a93b" : p[1] ? "#3fb8af" : "#6e7a87";
+      const top = n.above ? ABOVE : BELOW;
+      svg += `<g><title>${n.h.label} · ${n.h.pv ? "PV " + n.h.pv_kwp.toFixed(2) + " kWp" : "no PV"} · ${n.h.position_m.toFixed(0)} m from the transformer</title>`;
+      svg += `<polyline points="${n.tap},${BUS} ${n.tap},${stubY(n)} ${n.box},${edgeY(n)}" fill="none" stroke="#6e7a87" stroke-width="1"/><circle cx="${n.tap}" cy="${BUS}" r="2.5" fill="#e8edf2"/>`;
+      svg += `<rect x="${n.box - BW / 2}" y="${top}" width="${BW}" height="${BH}" fill="#12161b" stroke="${tone}" stroke-width="1.5" rx="1"/>`;
+      svg += `<text x="${n.box}" y="${top + 15}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#e8edf2">${n.h.label}</text>`;
+      svg += `<text x="${n.box}" y="${top + 30}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="${txt}">${p[0] ? kwhS(p[0]) : p[1] ? kwhS(-p[1]) : "—"}</text>`;
+      if (n.h.pv) svg += `<rect x="${n.box - 12}" y="${top - 6}" width="24" height="3" fill="#6e7a87"/>`;
+      svg += `</g>`;
+    });
+    const maxInj = Math.max(1, ...s.trades.map((t) => t[2]));
+    const routes = s.trades.map((t) => {
+      const a = byId.get(t[0]), b = byId.get(t[1]);
+      const dA = Math.hypot(a.box - a.tap, edgeY(a) - stubY(a)) + STUB, dB = Math.hypot(b.box - b.tap, edgeY(b) - stubY(b)) + STUB, bus = Math.abs(a.tap - b.tap);
+      return { d: `M ${a.box} ${edgeY(a)} L ${a.tap} ${stubY(a)} L ${a.tap} ${BUS} L ${b.tap} ${BUS} L ${b.tap} ${stubY(b)} L ${b.box} ${edgeY(b)}`,
+        seg: [dA, bus, dB], r: [RS * a.h.service_m, RB * Math.abs(a.h.position_m - b.h.position_m), RS * b.h.service_m], f: t[4], w0: 2.5 + 9 * Math.sqrt(t[2] / maxInj), t };
+    });
+    routes.forEach((r, k) => {
+      svg += reduced
+        ? `<path d="${r.d}" fill="none" stroke="#f2a93b" stroke-width="${Math.max(1.5, r.w0 * 0.6)}" stroke-opacity=".75" marker-end="url(#arrow)"><title>${kwh(r.t[2])} kWh injected, ${kwh(r.t[3])} received</title></path>`
+        : `<path data-k="${k}" d="${r.d}" fill="none" stroke="#f2a93b" stroke-width="${r.w0}" style="opacity:0"/>`;
+    });
+    ticks.forEach((m) => { svg += `<line x1="${X0 + m * scale}" y1="${H - 20}" x2="${X0 + m * scale}" y2="${H - 12}" stroke="#6e7a87"/><text x="${X0 + m * scale}" y="${H - 1}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#6e7a87">${m === 0 ? "0 m" : m}</text>`; });
+    svg += `<line x1="${X0}" y1="${H - 16}" x2="${X1}" y2="${H - 16}" stroke="#2a3440"/></svg>`;
+    $("mimic").innerHTML = svg;
+    $("mimicTitle").textContent = `Feeder mimic · SP ${pad(s.slot)} trades`;
+    $("mimicNote").textContent = magnify ? "losses drawn ×50 so the thinning is visible" : "losses drawn to scale";
+    if (!reduced) animate(routes);
+  }
+
+  let raf = 0;
+  function share(r, dist) {
+    const [a, b, c] = r.seg, [ra, rb, rc] = r.r, tot = ra + rb + rc || 1;
+    const x = dist <= a ? ra * (dist / (a || 1)) : dist <= a + b ? ra + rb * ((dist - a) / (b || 1)) : ra + rb + rc * Math.min(1, (dist - a - b) / (c || 1));
+    return x / tot;
+  }
+  function animate(routes) {
+    cancelAnimationFrame(raf);
+    const els = [...document.querySelectorAll("#mimic path[data-k]")];
+    const L = els.map((e) => e.getTotalLength());
+    const start = performance.now(), DUR = 1700, ST = 70, DASH = 30;
+    const frame = (now) => {
+      let running = false;
+      routes.forEach((r, k) => {
+        const el = els[k]; if (!el) return;
+        const t = (now - start - k * ST) / DUR;
+        if (t < 0) { running = true; return; }
+        if (t > 1.15) { el.style.opacity = 0; return; }
+        running = true;
+        const head = Math.min(1, t) * L[k];
+        const vis = Math.min(0.92, r.f * (magnify ? MAG : 1));
+        el.style.opacity = t > 1 ? 1 - (t - 1) / 0.15 : 1;
+        el.setAttribute("stroke-dasharray", `${DASH} ${L[k] + DASH}`);
+        el.setAttribute("stroke-dashoffset", DASH - head);
+        el.setAttribute("stroke-width", (r.w0 * (1 - vis * share(r, head))).toFixed(2));
+      });
+      if (running) raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+  }
+
+  // --- readouts ------------------------------------------------------------
+  function drawReadout(i) {
+    const s = slots[i], lost = s.injected_wh - s.delivered_wh;
+    const prev = i > 0 ? slots[i - 1] : null;
+    $("readout").innerHTML = `
+      <div class="legend">SP ${pad(s.slot)} · ${s.time}–${slotEnd(s.time)} AEST · in delivery</div>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-top:10px">${s.price ? `<span class="hero">₹${(s.price / 100).toFixed(2)}</span><span class="num muted">per kWh, everyone</span>` : `<span class="hero muted" style="font-size:30px">No trade</span>`}</div>
+      ${s.price ? "" : `<p class="muted" style="margin:8px 0 0">The book did not cross: no bid met an offer for this slot.</p>`}
+      <div class="figs">
+        <div class="fig"><div class="legend">Injected</div><div class="v exp">${kwh(s.injected_wh)}<small>kWh</small></div></div>
+        <div class="fig"><div class="legend">Received</div><div class="v imp">${kwh(s.delivered_wh)}<small>kWh</small></div></div>
+        <div class="fig"><div class="legend">Lost as heat</div><div class="v">${kwh(lost)}<small>kWh</small></div><div class="s">${s.injected_wh ? pct(lost / s.injected_wh) : "—"} of injected</div></div>
+        <div class="fig"><div class="legend">Trades</div><div class="v">${s.trades.length}</div></div>
+        <div class="fig"><div class="legend">Offers · bids</div><div class="v">${s.offers} · ${s.bids}</div></div>
+        <div class="fig"><div class="legend">Marginal bid · ask</div><div class="v" style="font-size:14px">${price(s.marginal[0])} · ${price(s.marginal[1])}</div></div>
+      </div>
+      <div style="border-top:1px solid var(--panel-etch);margin-top:16px;padding-top:12px">
+        <div class="legend">Commitment, published at gate closure</div>
+        <div class="hash" style="margin-top:4px" title="${s.commitment}">${short(s.commitment)}</div>
+        <p class="muted" style="font-size:12px;margin:4px 0 0">keccak256 of the cleared trades, fixed before any meter reported.</p>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px">
+        <span class="ann ${!s.price || (s.price > T.feed_in && s.price < T.retail - T.wheeling) ? "armed" : "alarm"}">Band OK</span>
+        <span class="ann armed">Committed</span>
+        ${prev ? `<span class="ann ${prev.verified ? "armed" : "alarm"}">SP ${pad(prev.slot)} ${prev.verified ? "verified" : "mismatch"} · ${prev.signatures} signatures</span>` : `<span class="ann">Awaiting settlement</span>`}
+      </div>`;
+    $("bookTitle").textContent = `Cleared book · SP ${pad(s.slot)}`;
+    $("depth").innerHTML = depth(s);
+    $("trades").innerHTML = s.trades.length
+      ? `<table><thead><tr><th>Route</th><th class="r">Injected</th><th class="r">Received</th><th class="r">Lost</th><th class="r">Path</th></tr></thead><tbody>${s.trades.map((t) => `<tr><td><span class="exp">${label(t[0])}</span><span class="muted"> → </span><span class="imp">${label(t[1])}</span></td><td class="r">${kwh(t[2])}</td><td class="r">${kwh(t[3])}</td><td class="r muted">${pct(t[4])}</td><td class="r muted">${Math.round(t[5])} m</td></tr>`).join("")}</tbody></table>`
+      : `<p class="muted">No trades in this slot.</p>`;
+  }
+
+  function depth(s) {
+    const w = 420, h = 246, l = 44, r = 8, t = 10, b = 44;
+    const sup = s.curves.supply, dem = s.curves.demand;
+    if (!sup.length && !dem.length) return `<p class="muted" style="height:${h}px;display:flex;align-items:center;justify-content:center">No orders yet for this slot.</p>`;
+    const maxX = Math.max(100, ...sup.map((p) => p[1]), ...dem.map((p) => p[1]));
+    const y0 = T.feed_in - 40, y1 = T.retail + 40;
+    const X = (v) => l + (v / maxX) * (w - l - r), Y = (p) => t + (1 - (p - y0) / (y1 - y0)) * (h - t - b);
+    const step = (c) => { if (!c.length) return ""; let d = `M ${X(0)} ${Y(c[0][0])}`; for (let i = 0; i < c.length; i++) { d += ` H ${X(c[i][1])}`; if (i + 1 < c.length) d += ` V ${Y(c[i + 1][0])}`; } return d; };
+    let g = "";
+    for (let p = 300; p <= 850; p += 100) g += `<line x1="${l}" x2="${w - r}" y1="${Y(p)}" y2="${Y(p)}" stroke="#2a3440"/><text x="${l - 6}" y="${Y(p) + 4}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="10" fill="#6e7a87">${(p / 100).toFixed(2)}</text>`;
+    g += `<line x1="${l}" x2="${w - r}" y1="${Y(T.feed_in)}" y2="${Y(T.feed_in)}" stroke="#6e7a87"/><text x="${w - r}" y="${Y(T.feed_in) - 4}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="10" fill="#6e7a87">feed-in ${price(T.feed_in)}</text>`;
+    g += `<line x1="${l}" x2="${w - r}" y1="${Y(T.retail - T.wheeling)}" y2="${Y(T.retail - T.wheeling)}" stroke="#6e7a87"/><text x="${w - r}" y="${Y(T.retail - T.wheeling) + 12}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="10" fill="#6e7a87">retail ${price(T.retail - T.wheeling)}</text>`;
+    for (let k = 0; k <= 4; k++) { const v = (maxX * k) / 4; g += `<text x="${X(v)}" y="${h - 26}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#6e7a87">${(v / 1000).toFixed(1)}</text>`; }
+    g += `<text x="${(l + w) / 2}" y="${h - 4}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#6e7a87">cumulative kWh</text>`;
+    g += `<path d="${step(sup)}" fill="none" stroke="#f2a93b" stroke-width="2"/><path d="${step(dem)}" fill="none" stroke="#3fb8af" stroke-width="2"/>`;
+    if (s.price) g += `<circle cx="${X(s.volume_wh)}" cy="${Y(s.price)}" r="5" fill="#e8edf2" stroke="#1c232b" stroke-width="2"/>`;
+    return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;display:block" role="img" aria-label="Order book depth for SP ${pad(s.slot)}">${g}</svg>`;
+  }
+
+  function drawTotals() {
+    const done = slots.slice(0, cur);
+    const inj = done.reduce((a, s) => a + s.injected_wh, 0), del = done.reduce((a, s) => a + s.delivered_wh, 0);
+    const value = done.reduce((a, s) => a + (s.price || 0) * s.injected_wh, 0);
+    const saving = done.reduce((a, s) => a + s.saving_mp, 0);
+    const loss = done.reduce((a, s) => a + s.loss_cost_mp, 0);
+    const n = done.reduce((a, s) => a + s.trades.length, 0);
+    $("totalsTitle").textContent = `Day so far · ${done.length} of 48 slots settled`;
+    $("totals").innerHTML = [
+      ["Traded", `${kwh(inj, 2)}<small>kWh</small>`, "exp", ""],
+      ["Lost as heat", `${kwh(inj - del)}<small>kWh</small>`, "", inj ? `${pct((inj - del) / inj)} of traded` : ""],
+      ["Trades", `${n}`, "", ""],
+      ["Market value", inr(value), "", ""],
+      ["Households vs grid-only", `${saving > 0 ? "+" : ""}${inr(saving)}`, saving < 0 ? "alarm" : "", "same meters, no market"],
+      ["Cost of losses", inr(loss), "muted", "unrecovered: no wheeling charge"],
+    ].map(([k, v, c, s]) => `<div class="fig"><div class="legend">${k}</div><div class="v ${c}">${v}</div><div class="s">${s}</div></div>`).join("");
+  }
+
+  // --- results ---------------------------------------------------------------
+  function drawResults() {
+    const res = DATA.results, out = [];
+    if (res.forecasting) {
+      const fc = res.forecasting, rows = fc.tables["Feeder, as simulated"] || [];
+      out.push(`<h2 class="display sec">Forecasting</h2><p class="muted prose">Net energy two half-hours ahead of the last meter reading, the market's gate. Trained on ${fc.splits.train}, tested once on ${fc.splits.test}. Feeder households as simulated; Wh per half hour.</p>
+      <div class="scroll"><table style="min-width:640px"><thead><tr><th>Model</th><th class="r">MAE</th><th class="r">95% CI</th><th class="r">vs persistence</th><th class="r">Pinball</th><th class="r">P10–P90 holds</th></tr></thead><tbody>
+      ${rows.map((r) => `<tr class="${r.model.includes("ORACLE") ? "muted" : ""}"><td>${r.model}</td><td class="r">${r.mae_wh.toFixed(1)}</td><td class="r muted">${r.mae_ci_wh[0].toFixed(1)}–${r.mae_ci_wh[1].toFixed(1)}</td><td class="r ${r.skill_vs_persistence < 0 ? "alarm" : ""}">${(r.skill_vs_persistence * 100).toFixed(1)}%</td><td class="r">${r.pinball_wh == null ? "—" : r.pinball_wh.toFixed(1)}</td><td class="r">${r.coverage_80 == null ? "—" : (r.coverage_80 * 100).toFixed(1) + "%"}</td></tr>`).join("")}
+      </tbody></table></div><p class="muted" style="font-size:12px">Agents in this replay bid from ${fc.market_model}. The oracle row was handed the target slot's actual weather, which no bidder could have had.</p>`);
+    }
+    if (res.study) {
+      const st = res.study;
+      const rows = st.strategies.filter((r) => r.price !== "shaded");
+      out.push(`<h2 class="display sec" style="margin-top:22px">Strategies, ${st.period.strategies[0]} to ${st.period.strategies[1]}</h2><p class="muted prose">Saving is what the ${st.households} households together paid less than billing the same signed meter readings with no market (grid-only bill ₹${Math.round(st.grid_only_bill_inr).toLocaleString("en-IN")}).</p>
+      <div class="scroll"><table style="min-width:640px"><thead><tr><th>Volume rule</th><th>Price rule</th><th class="r">Saving</th><th class="r">Per home-year</th><th class="r">Of oracle</th><th class="r">Over-committed kWh</th></tr></thead><tbody>
+      ${rows.map((r) => `<tr class="${r.volume.includes("oracle") ? "muted" : ""}"><td>${r.volume}</td><td>${r.price}</td><td class="r">₹${Math.round(r.saving_inr).toLocaleString("en-IN")}</td><td class="r">₹${Math.round(r.saving_inr_per_household_year).toLocaleString("en-IN")}</td><td class="r">${r.share_of_oracle == null ? "—" : Math.round(r.share_of_oracle * 100) + "%"}</td><td class="r">${Math.round(r.overcommit_kwh).toLocaleString("en-IN")}</td></tr>`).join("")}
+      </tbody></table></div>`);
+      const wl = Object.entries(st.wheeling).map(([k, v]) => `<li>${k === "newsvendor" ? "Newsvendor quantile" : "Seasonal naive"} volumes: households stop gaining at <span class="num">${v.zero == null ? "no charge below the band's closure" : "₹" + (v.zero / 100).toFixed(2) + "/kWh"}</span>.</li>`).join("");
+      const rs = (x) => `${x < 0 ? MINUS : x > 0 ? "+" : ""}₹${Math.abs(x).toFixed(2)}`;
+      const ic = st.ic.map((x) => `<li>${x.group}, shading ${Math.round(x.shade * 100)}% of the band: <span class="num">${x.households_that_gain} of ${x.households}</span> gain (mean <span class="num">${rs(x.mean_gain_inr)}</span>, best <span class="num">${rs(x.max_gain_inr)}</span>); everyone else changes by <span class="num">${rs(x.mean_others_change_inr)}</span>.</li>`).join("");
+      out.push(`<h2 class="display sec" style="margin-top:22px">Wheeling charge and incentives</h2><ul class="find">${wl}<li>The market keeps clearing until a charge of ₹${((T.retail - T.feed_in) / 100).toFixed(2)}/kWh closes the band; recovering only the cost of losses needs about ₹${(st.loss_cost_paise_per_kwh / 100).toFixed(3)}/kWh.</li>${ic}</ul>`);
+    }
+    $("resultsBody").innerHTML = out.join("") || `<p class="muted">Results were not available when this replay was built.</p>`;
+  }
+
+  // --- control ---------------------------------------------------------------
+  function go(i) {
+    cur = Math.max(0, Math.min(slots.length - 1, i));
+    drawRuler(); drawMimic(cur); drawReadout(cur); drawTotals();
+  }
+  function setPlaying(p) {
+    playing = p; $("play").setAttribute("aria-pressed", String(p)); $("play").textContent = p ? "Pause" : "Play";
+    clearInterval(timer);
+    if (p) timer = setInterval(() => go(cur + 1 >= slots.length ? 0 : cur + 1), secs * 1000);
+  }
+  $("play").onclick = () => setPlaying(!playing);
+  $("prev").onclick = () => go(cur - 1);
+  $("next").onclick = () => go(cur + 1);
+  ["speed2", "speed5"].forEach((id) => ($(id).onclick = () => { secs = Number($(id).dataset.speed); $("speed2").setAttribute("aria-pressed", String(secs === 2)); $("speed5").setAttribute("aria-pressed", String(secs === 5)); if (playing) setPlaying(true); }));
+  $("magnify").onclick = () => { magnify = !magnify; $("magnify").setAttribute("aria-pressed", String(magnify)); drawMimic(cur); };
+  document.addEventListener("keydown", (e) => { if (e.key === "ArrowRight") go(cur + 1); if (e.key === "ArrowLeft") go(cur - 1); });
+
+  drawResults();
+  go(cur);
+})();
+</script>
