@@ -1,0 +1,10 @@
+{
+  "_comment": "Single source of truth for market parameters. Read by market/ (Python), web/ (TypeScript) and contracts/ (deploy script). Money is integer paise per kWh; energy is integer Wh.",
+  "currency": "INR",
+  "feed_in_tariff_paise_per_kwh": 300,
+  "retail_tariff_paise_per_kwh": 850,
+  "wheeling_charge_paise_per_kwh": 0,
+  "loss_cap_fraction": 0.05,
+  "slot_minutes": 30,
+  "slots_per_day": 48
+}

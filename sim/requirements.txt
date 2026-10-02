@@ -1,0 +1,8 @@
+# Simulation service (sim/) on top of the data pipeline. Python 3.11.
+-r ../ml/requirements.txt
+fastapi==0.115.14
+uvicorn==0.34.3
+eth-account==0.13.7
+eth_abi==6.0.0
+coincurve==21.0.0  # libsecp256k1; eth-keys' pure-Python fallback is ~15x slower
+httpx==0.28.1
