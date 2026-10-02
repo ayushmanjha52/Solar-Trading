@@ -32,8 +32,14 @@ another day needs it (the Operator button in the control room); visitors can
 still trade. Visitor orders are capped: 300 open in total, 5 per household per
 slot.
 
-Any host that runs a Docker image as a web service works: Render, Railway, Fly,
-or a VM. The engine keeps the order book and three days of history in memory,
+**Render**: the repository has a Blueprint (`render.yaml`). In the Render
+dashboard choose New → Blueprint and pick this repository; it creates the web
+service from `deploy/Dockerfile` with a generated `LEM_ADMIN_TOKEN` (shown in the
+service's Environment tab). The first build takes several minutes because it
+builds the data panel.
+
+Any other host that runs a Docker image as a web service works too: Railway,
+Fly, or a VM. The engine keeps the order book and three days of history in memory,
 so give it one long-running instance, not a serverless function; a restart
 restarts the market.
 

@@ -24,11 +24,28 @@ jobs:
       - name: Python dependencies
         run: pip install -r sim/requirements.txt
 
+      # Raw downloads (Ausgrid archive, ERA5 responses) are pinned and never change;
+      # caching them keeps CI from re-fetching on every push.
+      - uses: actions/cache@v4
+        with:
+          path: data/raw
+          key: raw-${{ hashFiles('ml/config.py', 'ml/data/weather.py') }}
+
       - name: Data from scratch (Ausgrid archive, ERA5 via Open-Meteo)
-        run: python -m ml.data
+        run: |
+          set -o pipefail
+          python -u -m ml.data 2>&1 | tee data.log || {
+            echo "::error title=Data pipeline failed::$(tail -n 8 data.log | tr '\n' ' ' | cut -c1-900)"
+            exit 1
+          }
 
       - name: Python tests
-        run: python -m pytest ml market sim -q
+        run: |
+          set -o pipefail
+          python -m pytest ml market sim -q 2>&1 | tee pytest.log || {
+            echo "::error title=Python tests failed::$(grep -E 'FAILED|Error' pytest.log | head -n 8 | tr '\n' ' ' | cut -c1-900)"
+            exit 1
+          }
 
       - uses: foundry-rs/foundry-toolchain@v1
       - name: Contract tests
@@ -63,6 +80,10 @@ jobs:
             ml/requirements.txt
             sim/requirements.txt
       - run: pip install -r sim/requirements.txt
+      - uses: actions/cache@v4
+        with:
+          path: data/raw
+          key: raw-${{ hashFiles('ml/config.py', 'ml/data/weather.py') }}
       - name: Data
         run: python -m ml.data
       - name: Forecasting (Milestone 2)
