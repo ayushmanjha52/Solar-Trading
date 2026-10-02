@@ -43,9 +43,11 @@ def main() -> int:
             time.sleep(0.5)
     print("start  engine ready on 127.0.0.1:8000", flush=True)
 
-    npm = shutil.which("npm") or "npm"
-    web = subprocess.Popen([npm, "run", "start", "--", "-p", port, "-H", "0.0.0.0"], cwd=ROOT / "web",
-                           env={**os.environ, "SIM_URL": "http://127.0.0.1:8000"})
+    # Start Next directly, not through npm: the npm wrapper process alone costs ~70 MB,
+    # which matters on a 512 MB instance (measured: engine ~165 MB, Next ~145 MB).
+    node = shutil.which("node") or "node"
+    web = subprocess.Popen([node, "node_modules/next/dist/bin/next", "start", "-p", port, "-H", "0.0.0.0"],
+                           cwd=ROOT / "web", env={**os.environ, "SIM_URL": "http://127.0.0.1:8000"})
     print(f"start  website on :{port}", flush=True)
 
     def stop(*_):

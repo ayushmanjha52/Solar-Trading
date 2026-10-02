@@ -1,9 +1,8 @@
-# What the running engine and the data build need. No torch or xgboost: forecasts
-# are produced offline by ml/evaluate.py and shipped as deploy/forecasts/.
+# What the running engine needs, and nothing else. The data is shipped
+# prebuilt (deploy/bundle); forecasts are produced offline by ml/evaluate.py.
 numpy==2.1.3
 pandas==2.2.3
 pyarrow==18.1.0
-matplotlib==3.9.3
 requests==2.32.3
 fastapi==0.115.14
 uvicorn==0.34.3
