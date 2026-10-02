@@ -18,7 +18,10 @@ COPY web/package.json web/package-lock.json web/
 RUN cd web && npm ci
 
 COPY . .
-# The Ausgrid panel and ERA5 weather, built once at image build (downloads ~57 MB).
+# ERA5 is a fixed historical reanalysis, so its 17 responses ship with the repo:
+# Open-Meteo can take minutes to answer a cloud builder, and the build should not
+# depend on it. The Ausgrid archive (~57 MB, hash-pinned) is still downloaded.
+RUN mkdir -p data/raw/weather && tar -xzf deploy/weather-cache.tar.gz -C data/raw/weather
 RUN python -m ml.data
 # Out-of-sample forecasts for the agents, produced offline by `python -m ml.evaluate`.
 RUN cp deploy/forecasts/forecasts_feeder.* data/processed/
