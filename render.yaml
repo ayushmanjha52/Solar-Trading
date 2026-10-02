@@ -1,0 +1,19 @@
+# Render Blueprint: the interactive market as one web service.
+# Render dashboard -> New -> Blueprint -> this repository.
+services:
+  - type: web
+    name: local-energy-market
+    runtime: docker
+    dockerfilePath: ./deploy/Dockerfile
+    dockerContext: .
+    # A paid instance: free instances sleep when idle, and a restart resets the
+    # in-memory market.
+    plan: starter
+    healthCheckPath: /api/clock
+    envVars:
+      # Locks the shared clock to the operator. Render generates the value; read it
+      # in the service's Environment tab to unlock the Operator controls.
+      - key: LEM_ADMIN_TOKEN
+        generateValue: true
+      - key: LEM_CHAIN
+        value: "0"
