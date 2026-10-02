@@ -22,9 +22,10 @@ to the website, and the website on `$PORT`, the one port a host exposes.
     docker build -f deploy/Dockerfile -t local-energy-market .
     docker run -p 3000:3000 -e LEM_ADMIN_TOKEN=<a long random secret> local-energy-market
 
-The image builds the Ausgrid panel and ERA5 weather during `docker build`
-(network needed; about 57 MB plus 17 Open-Meteo requests) and copies the
-out-of-sample forecasts from `deploy/forecasts/`.
+The image builds the Ausgrid panel during `docker build` (network needed; the
+~57 MB archive is downloaded and hash-checked). The ERA5 weather responses ship
+in `deploy/weather-cache.tar.gz`, because Open-Meteo can take many minutes to
+answer a cloud builder; the out-of-sample forecasts come from `deploy/forecasts/`.
 
 **Set `LEM_ADMIN_TOKEN` on any public deployment.** Every visitor shares one
 clock. With the token set, pausing, stepping, changing speed or jumping to
