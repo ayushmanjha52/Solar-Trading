@@ -1,0 +1,18 @@
+{
+  "days": [
+    "2012-11-10",
+    "2012-11-11",
+    "2012-11-12",
+    "2012-11-13",
+    "2012-11-14",
+    "2012-11-15",
+    "2012-11-16"
+  ],
+  "slot_seconds": 5.0,
+  "night_slot_seconds": 1.0,
+  "daylight_slots": [
+    12,
+    39
+  ],
+  "recorded_from": "python -m sim.export_hosted (the market engine, sim/engine.py)"
+}

@@ -2,7 +2,7 @@
 
 **Neighbours trade their sunlight, and every kilowatt-hour is proven.**
 
-**[Live demo](https://ayushmanjha52-local-energy-market.hf.space)** ·
+**[Live demo](https://local-energy-market.vercel.app)** ·
 **[Source](https://github.com/ayushmanjha52/Solar-Trading)** ·
 [Results](reports/study/results.md) ·
 [How it works](#how-it-works)
@@ -197,8 +197,9 @@ on the Method page.
 
 ## Deploying
 
-The live demo is a Hugging Face Docker Space, republished by GitHub Actions on
-every push to `main`; setup and other hosts are in `deploy/README.md`. The
-interactive market is one container (`deploy/Dockerfile`) running the engine and
-the website together. Set `LEM_ADMIN_TOKEN` on a public deployment so only the
-operator can change the clock every visitor shares.
+The live demo runs on Vercel and replays a recorded week of the market: every
+book, trade, commitment, signed reading and settlement comes from the engine,
+replayed in step for every visitor (`web/src/lib/hosted.ts`). Placing orders
+needs the engine itself, which runs locally with `python demo.py` or on any
+Docker host as one container (`deploy/Dockerfile`; `railway.json` for Railway).
+Setup for both is in `deploy/README.md`.

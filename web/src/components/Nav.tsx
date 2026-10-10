@@ -44,7 +44,7 @@ function ClockBadge() {
   return (
     <span className="pill text-label-muted" title={data.chain.connected ? `Anchoring to chain ${data.chain.chain_id}` : "Settlement verified off-chain"}>
       {data.paused ? <span className="h-[7px] w-[7px] rounded-full bg-label-muted" /> : <span className="live-dot" />}
-      <span className="text-label">{data.paused ? "Paused" : "Live"}</span>
+      <span className="text-label">{data.paused ? "Paused" : data.hosted ? "Replay" : "Live"}</span>
       <span className="hidden sm:inline">{dayLabel(data.day)}</span>
       <span className="num text-label">
         {data.slot_time}–{slotEnd(data.slot_time)}

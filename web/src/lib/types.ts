@@ -145,6 +145,8 @@ export interface Clock {
   chain: ChainStatus;
   /** True on public deployments: changing the shared clock needs the operator token. */
   controls_locked?: boolean;
+  /** True when the site replays a recorded week instead of running the engine (lib/hosted.ts). */
+  hosted?: boolean;
 }
 
 export interface OpenBook {

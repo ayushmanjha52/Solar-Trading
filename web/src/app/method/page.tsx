@@ -41,6 +41,7 @@ export default function MethodPage() {
     ["Forecasts", "Real computation", "Trained on 2010-12, tested once on 2012-13 against persistence and naive baselines. See Results."],
     ["Strategy and wheeling study", "Real computation", "Six-month backtests of strategies, wheeling charges and unilateral deviations. See Results."],
     ["The clock", "Simulated", "One half hour every few seconds, replaying spring and summer 2012-13."],
+    ["The hosted website", "Recorded", "Online, the site replays a week recorded from the engine (10-16 Nov 2012) in step for every visitor. Placing orders needs the engine itself: python demo.py."],
     ["Public testnet deployment", "Not built", "Polygon Amoy needs a funded key you hold. A local Anvil chain anchors the same transactions when it is running."],
     ["Durable storage", "Not built", "The live book and recent history live in the engine's memory (Redis and Postgres in production)."],
   ];

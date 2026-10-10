@@ -38,6 +38,15 @@ export function ClockControls({ clock, onChange }: { clock: Clock; onChange: () 
 
   const locked = !!clock.controls_locked && !token;
 
+  if (clock.hosted) {
+    return (
+      <span className="pill text-label-muted" title="The engine recorded these days; this copy replays them in step for every visitor.">
+        <span className="h-1.5 w-1.5 rounded-full bg-export" />
+        Recorded week, {clock.first_day.slice(8)}–{clock.last_day.slice(8)} Nov 2012, replayed on a loop
+      </span>
+    );
+  }
+
   const send = async (body: Record<string, unknown>) => {
     const r = await postJson("/api/clock", body, "POST", token ? { "x-admin-token": token } : {});
     if (r.status === 403) {

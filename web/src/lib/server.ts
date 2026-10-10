@@ -1,6 +1,18 @@
 // Server-only helpers for route handlers. Never import from a client component.
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+
+/**
+ * Read a JSON file from the repository root (config/, reports/). A host that ships
+ * only web/ (Vercel) gets the copies in web/data/static instead, which
+ * `python -m sim.export_hosted` writes and CI checks against the originals.
+ */
+export function readRepoJson<T>(rel: string, staticName: string): T | null {
+  for (const file of [path.join(process.cwd(), "..", rel), path.join(process.cwd(), "data", "static", staticName)]) {
+    if (existsSync(file)) return JSON.parse(readFileSync(file, "utf8")) as T;
+  }
+  return null;
+}
 
 export const SIM_URL = process.env.SIM_URL ?? "http://127.0.0.1:8000";
 
@@ -28,8 +40,10 @@ interface MarketConfig {
 
 /** The same config/market.json the Python engine and the contract deployment read. */
 export function marketConfig(): MarketConfig {
-  const file = process.env.MARKET_CONFIG ?? path.join(process.cwd(), "..", "config", "market.json");
-  return JSON.parse(readFileSync(file, "utf8")) as MarketConfig;
+  if (process.env.MARKET_CONFIG) return JSON.parse(readFileSync(process.env.MARKET_CONFIG, "utf8")) as MarketConfig;
+  const c = readRepoJson<MarketConfig>("config/market.json", "market.json");
+  if (!c) throw new Error("config/market.json not found");
+  return c;
 }
 
 /**

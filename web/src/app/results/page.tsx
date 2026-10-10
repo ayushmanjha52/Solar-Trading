@@ -1,7 +1,8 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import Image from "next/image";
 import type { ReactNode } from "react";
+import { readRepoJson } from "@/lib/server";
 import { WheelingChart } from "./WheelingChart";
 
 export const metadata = { title: "Results · Local Energy Market" };
@@ -9,8 +10,7 @@ export const dynamic = "force-dynamic";
 
 // Result files are produced by Python (ml/evaluate.py, sim/study.py); their shapes are read loosely here.
 function readJson(rel: string): any | null {
-  const file = path.join(process.cwd(), "..", rel);
-  return existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : null;
+  return readRepoJson(rel, rel.includes("forecasting") ? "forecasting.json" : "study.json");
 }
 
 function Section({ title, children, id }: { title: string; children: ReactNode; id: string }) {

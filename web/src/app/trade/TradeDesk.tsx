@@ -59,6 +59,7 @@ export function TradeDesk() {
   const f = feeder.data;
   const hh = f.households.find((x) => x.id === h)!;
   const isNextSlot = g === live.data.clock.g + 1;
+  const hosted = !!live.data.clock.hosted;
   const myOrders = (orders.data ?? []).filter((o) => o.status !== "cancelled");
 
   async function submit(e: React.FormEvent) {
@@ -97,6 +98,17 @@ export function TradeDesk() {
           choose. The gate closes when the slot begins; the book then clears at one price for everyone.
         </p>
       </div>
+
+      {hosted && (
+        <div className="card flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-4 text-sm">
+          <span className="h-2 w-2 rounded-full bg-export" />
+          <p className="min-w-0 flex-1 text-label-muted">
+            <span className="text-label">This hosted copy replays a recorded week, so it cannot take orders.</span> The
+            form below shows what a trader sees. To place real orders against the live engine, clone the repository and
+            run <code className="num text-label">python demo.py</code>.
+          </p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[420px_minmax(0,1fr)]">
         <Panel title="Order" className="min-w-0">
@@ -202,7 +214,8 @@ export function TradeDesk() {
 
             <button
               type="submit"
-              disabled={busy}
+              disabled={busy || hosted}
+              title={hosted ? "Placing orders needs the live engine" : undefined}
               className={`w-full rounded-xl px-3 py-3 text-sm font-semibold transition-transform hover:-translate-y-px disabled:opacity-50 ${
                 side === "sell" ? "bg-export text-[#1a1204]" : "bg-import text-[#03201d]"
               }`}

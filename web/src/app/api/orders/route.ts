@@ -1,8 +1,10 @@
+import { HOSTED_ORDER_MESSAGE, isHosted } from "@/lib/hosted";
 import { bandError, proxy } from "@/lib/server";
 
 export const dynamic = "force-dynamic";
 
 export function GET() {
+  if (isHosted()) return Response.json([]);
   return proxy("/api/orders");
 }
 
@@ -28,6 +30,7 @@ export async function POST(req: Request) {
   }
   const band = bandError(price);
   if (band) return Response.json({ detail: band }, { status: 422 });
+  if (isHosted()) return Response.json({ detail: HOSTED_ORDER_MESSAGE }, { status: 503 });
 
   return proxy("/api/orders", {
     method: "POST",

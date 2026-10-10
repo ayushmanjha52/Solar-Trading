@@ -14,6 +14,10 @@ reports/figures/*
 
 .env
 .demo-logs/
+# Local editor and tool settings
+.claude/
+.vscode/
+.idea/
 node_modules/
 .next/
 *.tsbuildinfo
