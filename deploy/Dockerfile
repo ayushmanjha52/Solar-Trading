@@ -22,8 +22,11 @@ RUN cd web && npm ci
 COPY . .
 RUN mkdir -p data/processed && cp deploy/bundle/*.parquet deploy/bundle/forecasts_feeder.json data/processed/
 RUN cd web && npm run build && npm prune --omit=dev
+# Some hosts (Hugging Face Spaces) run the container as user 1000, not root; Next
+# writes its image cache under .next at runtime.
+RUN chown -R 1000:1000 web/.next
 
 # Keep Node's heap well inside a 512 MB instance alongside the Python engine.
-ENV PORT=3000 NODE_ENV=production NODE_OPTIONS=--max-old-space-size=192
+ENV PORT=3000 NODE_ENV=production NODE_OPTIONS=--max-old-space-size=192 NEXT_TELEMETRY_DISABLED=1
 EXPOSE 3000
 CMD ["python", "deploy/start.py"]

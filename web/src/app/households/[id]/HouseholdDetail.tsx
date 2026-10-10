@@ -80,8 +80,8 @@ export function HouseholdDetail({ id }: { id: number }) {
             </Link>{" "}
             / {hh.label}
           </div>
-          <h1 className="display mt-1 text-2xl uppercase text-label">{hh.label}</h1>
-          <p className="num mt-1 text-xs uppercase tracking-wider text-label-muted">
+          <h1 className="page-title mt-2 text-label">{hh.label}</h1>
+          <p className="mt-2 text-sm text-label-muted">
             {hh.pv ? `PV ${hh.pv_kwp.toFixed(2)} kWp` : "No PV"} · {hh.position_m.toFixed(0)} m from the transformer ·{" "}
             {hh.service_m.toFixed(0)} m service · Ausgrid customer #{hh.customer}, postcode {hh.postcode} ·{" "}
             {dayLabel(data.day)}
@@ -89,7 +89,7 @@ export function HouseholdDetail({ id }: { id: number }) {
         </div>
         <Link
           href={`/trade?h=${hh.id}`}
-          className="num border border-label-muted px-3 py-1.5 text-2xs uppercase tracking-wider text-label hover:bg-panel-etch"
+          className="rounded-full bg-export px-4 py-2 text-sm font-semibold text-[#1a1204] transition-transform hover:-translate-y-px"
         >
           Trade as {hh.label}
         </Link>

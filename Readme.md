@@ -1,8 +1,13 @@
 # Local Energy Market
 
-**Live:** https://local-energy-market.onrender.com (free instance: if nobody has
-visited for a while, the first page takes about a minute to wake it, and the
-market restarts at 12 Nov 2012, 10:00).
+**Neighbours trade their sunlight, and every kilowatt-hour is proven.**
+
+**[Live demo](https://ayushmanjha52-local-energy-market.hf.space)** ·
+**[Source](https://github.com/ayushmanjha52/Solar-Trading)** ·
+[Results](reports/study/results.md) ·
+[How it works](#how-it-works)
+
+![The control room: live settlement ruler and feeder mimic](docs/screenshot.png)
 
 A peer-to-peer market for one residential LV feeder. Households with rooftop
 solar sell surplus to their neighbours instead of exporting it to the utility.
@@ -13,7 +18,7 @@ anchored on chain, so the operator cannot restate an outcome afterwards.
 
 **This is simulation-backed on real data.** There is no physical microgrid.
 Meters are simulated processes holding real ECDSA keys. Load and generation
-come from the Ausgrid *Solar Home Electricity Data* set (Sydney, 2010â€“13);
+come from the Ausgrid *Solar Home Electricity Data* set (Sydney, 2010–13);
 weather comes from Open-Meteo (ERA5). Prices are in rupees against an Indian
 tariff band applied to Australian households. The interface says all of this in
 its footer and on its Method page.
@@ -44,7 +49,7 @@ From `reports/forecasting/results.md` and `reports/study/results.md`, regenerate
 `python -m ml.evaluate` and `python -m sim.study` (CI reruns both from scratch weekly).
 
 - **Forecasting** (net energy two half-hours ahead, the market's gate; test window
-  Oct 2012 â€“ Jun 2013, never used for fitting or selection). XGBoost with calibrated
+  Oct 2012 – Jun 2013, never used for fitting or selection). XGBoost with calibrated
   quantiles: MAE 159 Wh against 226 Wh for persistence (+30%, day-block 95% CIs
   do not overlap). The LSTM loses to it (+20%), with better-calibrated bands. Seasonal
   naive, the agents' previous forecast, is 20% *worse* than persistence on PV daylight
@@ -52,18 +57,18 @@ From `reports/forecasting/results.md` and `reports/study/results.md`, regenerate
   improves it by under 1%: at this horizon the household's own last reading already
   carries what reanalysis knows.
 - **Strategies** (six months, 24 households, against billing the same meters with no
-  market). Seasonal-naive volumes save â‚¹1,077 per household-year, 43% of what perfect
-  foresight would; the learned median, â‚¹1,786 (71%); the newsvendor quantile under
-  moving prices, â‚¹1,933 (77%).
+  market). Seasonal-naive volumes save ₹1,077 per household-year, 43% of what perfect
+  foresight would; the learned median, ₹1,786 (71%); the newsvendor quantile under
+  moving prices, ₹1,933 (77%).
 - **The newsvendor quantile** is the optimal contract: the forecast quantile at
-  (p âˆ’ feed-in) / (retail âˆ’ feed-in). Under truthful bidding the uniform price is always
+  (p − feed-in) / (retail − feed-in). Under truthful bidding the uniform price is always
   the band midpoint, so that level is exactly 0.5 and the risk is symmetric; it becomes
   asymmetric only as the price moves toward an edge of the band.
-- **Wheeling charge.** With naive forecasts, households stop gaining at â‚¹2.33/kWh;
-  with newsvendor bidding at â‚¹5.15/kWh, just below the band's closure at â‚¹5.50.
-  Recovering only the cost of losses needs about â‚¹0.012/kWh.
+- **Wheeling charge.** With naive forecasts, households stop gaining at ₹2.33/kWh;
+  with newsvendor bidding at ₹5.15/kWh, just below the band's closure at ₹5.50.
+  Recovering only the cost of losses needs about ₹0.012/kWh.
 - **Incentive compatibility.** On this supply-short feeder, 8 of 10 PV sellers gain by
-  shading their offer 40% (best â‚¹726 over two months); no buyer gains by shading. The
+  shading their offer 40% (best ₹726 over two months); no buyer gains by shading. The
   uniform-price auction is not strategy-proof here, but the effect is a transfer from
   buyers to sellers rather than lost welfare.
 
@@ -71,7 +76,7 @@ From `reports/forecasting/results.md` and `reports/study/results.md`, regenerate
 
 | Page | What it is for |
 |---|---|
-| **Control room** `/` | The 48-slot settlement ruler, the feeder mimic (each trade animates as a pulse from seller to buyer that thins by its loss), the cleared and open books, today's totals against grid-only billing. Clock controls: pause, step, speed, jump to any day Oct 2012 â€“ Mar 2013. |
+| **Control room** `/` | The 48-slot settlement ruler, the feeder mimic (each trade animates as a pulse from seller to buyer that thins by its loss), the cleared and open books, today's totals against grid-only billing. Clock controls: pause, step, speed, jump to any day Oct 2012 – Mar 2013. |
 | **Trade** `/trade` | Act for any household: *Sell surplus* or *Buy energy* in any open slot. Your order replaces that household's agent. Outcomes, including imbalance, are settled against its signed meter. |
 | **Households** `/households/[id]` | Forecast vs contract vs signed meter reading per slot; market, imbalance and counterfactual cash; the meter's registered key. |
 | **Settlement** `/settlement/[g]` | The evidence for one slot: commitment, trades, 24 signed readings, the two-pass settlement, money conservation, the on-chain transactions. *Verify in this browser* recomputes the hash and recovers every signature with viem, independently of the engine. |
@@ -81,13 +86,13 @@ From `reports/forecasting/results.md` and `reports/study/results.md`, regenerate
 ## How it works
 
 ```
- orders â”€â”€â–º web API route â”€â”€â–º Python engine â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–º EnergyMarket.sol
+ orders ──► web API route ──► Python engine ──────────────► EnergyMarket.sol
             band check 1      band check 2                  band check 3
                               uniform-price auction          verify commitment
-                              flows + IÂ²R losses             recover 24 signatures
-                              keccak256(trades) â†’ commit â”€â”€â–º commit(slot, hash)
+                              flows + I²R losses             recover 24 signatures
+                              keccak256(trades) → commit ──► commit(slot, hash)
                               meters sign readings           two-pass settlement
-                              two-pass settlement â”€â”€â”€â”€â”€â”€â”€â”€â”€â–º settle(...) â†’ events
+                              two-pass settlement ─────────► settle(...) → events
                               (Python and chain must agree; the client checks)
 ```
 
@@ -105,8 +110,8 @@ From `reports/forecasting/results.md` and `reports/study/results.md`, regenerate
   (short pays retail, long gets feed-in). Every saving is measured against
   billing the same readings with no market. Money is integer milli-paise, so
   conservation is exact.
-- **Losses.** IÂ²R on the service and backbone conductors along each trade's path,
-  capped at 5%. On this feeder they come to 0.1â€“0.6% per trade; the model's limits
+- **Losses.** I²R on the service and backbone conductors along each trade's path,
+  capped at 5%. On this feeder they come to 0.1–0.6% per trade; the model's limits
   (no load flow, voltage, thermal or phase effects) are documented in
   `market/losses.py`.
 
@@ -163,7 +168,7 @@ meter keys and anchors every slot from then on. Each settlement costs about
   (unaffiliated with Ausgrid), pinned by SHA-256 in `ml/config.py`. The parser
   reproduces Ausgrid's own published annual means and medians to the kWh, and
   the build fails if it ever stops doing so.
-- **Weather.** ERA5 reanalysis via the Open-Meteo archive API, one 0.25Â° cell
+- **Weather.** ERA5 reanalysis via the Open-Meteo archive API, one 0.25° cell
   per household. Reanalysis describes the weather as it was, so it is not a
   forecast input. See `ml/data/weather.py`.
 - **Time.** Ausgrid's files are in Sydney clock time with daylight saving, but
@@ -192,8 +197,8 @@ on the Method page.
 
 ## Deploying
 
-See `deploy/README.md`. The recorded replay (`deploy/replay/feeder-replay.html`)
-is a single static file. The interactive market is one container
-(`deploy/Dockerfile`) running the engine and the website together; any host that
-runs a Docker image as a web service works. Set `LEM_ADMIN_TOKEN` on a public
-deployment so only the operator can change the clock every visitor shares.
+The live demo is a Hugging Face Docker Space, republished by GitHub Actions on
+every push to `main`; setup and other hosts are in `deploy/README.md`. The
+interactive market is one container (`deploy/Dockerfile`) running the engine and
+the website together. Set `LEM_ADMIN_TOKEN` on a public deployment so only the
+operator can change the clock every visitor shares.

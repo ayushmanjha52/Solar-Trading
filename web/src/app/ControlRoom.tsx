@@ -30,10 +30,10 @@ export function ControlRoom() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-4 border-t border-panel-etch pt-10">
         <div>
-          <h1 className="display text-2xl uppercase text-label">Control room</h1>
-          <p className="num mt-1 text-xs uppercase tracking-wider text-label-muted">
+          <h2 className="page-title text-label">Control room</h2>
+          <p className="mt-2 text-sm text-label-muted">
             {f.name} · {f.households.length} households · {dayLabel(day.day)}
           </p>
         </div>
@@ -95,7 +95,7 @@ export function ControlRoom() {
         <Panel
           title={`Open book · SP ${slotLabel(book.slot)} · ${book.time}`}
           right={
-            <Link href="/trade" className="num text-2xs uppercase tracking-wider text-label underline decoration-panel-etch underline-offset-4">
+            <Link href="/trade" className="text-sm text-export hover:underline underline-offset-4">
               Place an order
             </Link>
           }

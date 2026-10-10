@@ -8,7 +8,7 @@ const SPEEDS = [2, 5, 10];
 const TOKEN_KEY = "lem-operator-token";
 
 const btn =
-  "num border border-panel-etch px-2.5 py-1 text-2xs uppercase tracking-wider text-label hover:border-label-muted disabled:opacity-40";
+  "rounded-full border border-panel-etch px-3 py-1 text-xs font-medium text-label transition-colors hover:border-label-muted hover:bg-white/[0.04] disabled:opacity-40";
 
 function readToken(): string {
   try {

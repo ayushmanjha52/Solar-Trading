@@ -27,7 +27,7 @@ export function Ledger() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="display text-2xl uppercase text-label">Settlement</h1>
+        <h1 className="page-title text-label">Settlement</h1>
         <p className="mt-1 max-w-3xl text-sm text-label-muted">
           Matching happens off-chain; settlement is proven. Every slot is committed before delivery and settled only
           against signed meter readings, so the operator cannot quietly restate an outcome afterwards.

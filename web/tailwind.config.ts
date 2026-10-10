@@ -1,12 +1,11 @@
 import type { Config } from "tailwindcss";
 
-// Substation mimic panel vocabulary. Each colour means one thing, everywhere:
-// amber = energy injected / selling, cyan = energy drawn / buying,
-// alarm = band violation or settlement mismatch, armed = settled and verified.
+// Colour carries meaning, everywhere: amber = energy sold / injected,
+// teal = energy bought / drawn, red = band violation or settlement mismatch,
+// green = settled and verified. Everything else is black and greys.
 const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
-    borderRadius: { none: "0", DEFAULT: "2px", sm: "2px" },
     extend: {
       colors: {
         panel: {
@@ -22,6 +21,7 @@ const config: Config = {
       },
       fontFamily: {
         display: ["var(--font-display)", "sans-serif"],
+        serif: ["var(--font-serif)", "serif"],
         sans: ["var(--font-sans)", "sans-serif"],
         mono: ["var(--font-mono)", "monospace"],
       },

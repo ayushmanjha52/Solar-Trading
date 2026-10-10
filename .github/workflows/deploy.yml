@@ -1,0 +1,34 @@
+name: deploy
+
+# Publishes the interactive market to a Hugging Face Docker Space on every push
+# to main. Needs the repository secret HF_TOKEN (a Hugging Face write token);
+# without it the job does nothing. Optional secret LEM_ADMIN_TOKEN locks the
+# shared clock to the operator.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+jobs:
+  space:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Publish to the Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          LEM_ADMIN_TOKEN: ${{ secrets.LEM_ADMIN_TOKEN }}
+        run: |
+          if [ -z "$HF_TOKEN" ]; then
+            echo "::notice::HF_TOKEN is not set, so nothing was deployed."
+            exit 0
+          fi
+          pip install --quiet huggingface_hub==0.26.2
+          python deploy/hf_space.py

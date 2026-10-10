@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
     <section id={id} className="scroll-mt-6 border-t border-panel-etch pt-6">
-      <h2 className="display text-lg uppercase text-label">{title}</h2>
+      <h2 className="display text-2xl text-label">{title}</h2>
       <div className="mt-3 max-w-3xl space-y-3 text-sm leading-relaxed text-label">{children}</div>
     </section>
   );
@@ -48,7 +48,7 @@ export default function MethodPage() {
   return (
     <div className="space-y-8 pb-6">
       <div>
-        <h1 className="display text-2xl uppercase text-label">Method</h1>
+        <h1 className="page-title text-label">Method</h1>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-label-muted">
           A peer-to-peer market for one residential LV feeder. Households with rooftop solar sell surplus to neighbours
           instead of exporting it to the utility. The book clears every half hour at one price; every settlement is

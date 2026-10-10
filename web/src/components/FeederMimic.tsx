@@ -255,7 +255,7 @@ export function FeederMimic({
                 strokeWidth={1}
               />
               <circle cx={n.tapX} cy={BUS_Y} r={2.5} fill="var(--label)" />
-              <rect x={n.boxX - BOX_W / 2} y={top} width={BOX_W} height={BOX_H} fill="var(--panel-base)" stroke={tone} strokeWidth={1.5} rx={1} />
+              <rect x={n.boxX - BOX_W / 2} y={top} width={BOX_W} height={BOX_H} fill="var(--panel-base)" stroke={tone} strokeWidth={1.5} rx={7} />
               <text x={n.boxX} y={top + 15} textAnchor="middle" className="num" fontSize={11} fill="var(--label)">
                 {n.h.label}
               </text>

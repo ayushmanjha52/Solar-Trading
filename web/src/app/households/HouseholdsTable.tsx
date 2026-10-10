@@ -15,7 +15,7 @@ export function HouseholdsTable() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="display text-2xl uppercase text-label">Households</h1>
+        <h1 className="page-title text-label">Households</h1>
         <p className="mt-1 max-w-3xl text-sm text-label-muted">
           {data.length} households on the feeder, {pv} with rooftop PV. Each is a real Ausgrid customer&apos;s half-hourly
           load{pv ? " and, for PV homes, generation" : ""}; households shown without PV keep their real load with

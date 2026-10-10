@@ -11,7 +11,7 @@ import { postJson, usePoll } from "@/lib/usePoll";
 
 type Side = "sell" | "buy";
 
-const field = "num w-full border border-panel-etch bg-panel-base px-3 py-2 text-sm text-label focus:border-label-muted";
+const field = "num w-full rounded-xl border border-panel-etch bg-panel-base px-3.5 py-2.5 text-sm text-label outline-none transition-colors focus:border-label-muted";
 
 export function TradeDesk() {
   const params = useSearchParams();
@@ -91,7 +91,7 @@ export function TradeDesk() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="display text-2xl uppercase text-label">Trade</h1>
+        <h1 className="page-title text-label">Trade</h1>
         <p className="mt-1 max-w-3xl text-sm text-label-muted">
           Act for one household on the feeder. Your order replaces that household&apos;s bidding agent for the slot you
           choose. The gate closes when the slot begins; the book then clears at one price for everyone.
@@ -122,7 +122,7 @@ export function TradeDesk() {
                   role="radio"
                   aria-checked={side === s}
                   onClick={() => setSide(s)}
-                  className={`-ml-px border px-3 py-2 text-sm first:ml-0 ${
+                  className={`border px-3 py-2.5 text-sm transition-colors first:rounded-l-xl last:-ml-px last:rounded-r-xl ${
                     side === s
                       ? s === "sell"
                         ? "border-export text-export"
@@ -203,9 +203,9 @@ export function TradeDesk() {
             <button
               type="submit"
               disabled={busy}
-              className={`num w-full border px-3 py-2.5 text-xs uppercase tracking-wider disabled:opacity-50 ${
-                side === "sell" ? "border-export text-export" : "border-import text-import"
-              } hover:bg-panel-etch`}
+              className={`w-full rounded-xl px-3 py-3 text-sm font-semibold transition-transform hover:-translate-y-px disabled:opacity-50 ${
+                side === "sell" ? "bg-export text-[#1a1204]" : "bg-import text-[#03201d]"
+              }`}
             >
               {busy ? "Placing…" : side === "sell" ? "Place offer" : "Place bid"}
             </button>

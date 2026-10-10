@@ -73,6 +73,17 @@ def test_one_household_cannot_flood_a_slot(client):
     assert codes[:5] == [201] * 5 and codes[5:] == [422, 422]
 
 
+def test_night_slots_pass_quickly_daylight_slots_at_normal_speed():
+    from sim.api import NIGHT_SLOT_SECONDS, slot_interval
+    from sim.engine import Simulation
+
+    s = Simulation()
+    s.reset("2012-11-12", 2)  # 00:30, dark
+    assert slot_interval(s) == NIGHT_SLOT_SECONDS
+    s.reset("2012-11-12", 24)  # 11:30, sun up
+    assert slot_interval(s) == s.slot_seconds
+
+
 def test_step_settles_and_ledger_verifies(client):
     client.post("/api/clock", json={"action": "step"})
     ledger = client.get("/api/ledger").json()

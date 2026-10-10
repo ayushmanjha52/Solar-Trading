@@ -55,10 +55,10 @@ export function Evidence({ g }: { g: number }) {
           </Link>{" "}
           / SP {slotLabel(s.slot)}
         </div>
-        <h1 className="display mt-1 text-2xl uppercase text-label">
+        <h1 className="page-title mt-2 text-label">
           SP {slotLabel(s.slot)} · {s.time}–{slotEnd(s.time)}
         </h1>
-        <p className="num mt-1 text-xs uppercase tracking-wider text-label-muted">
+        <p className="mt-2 text-sm text-label-muted">
           {dayLabel(s.day)} · AEST · slot start {s.slot_start} (unix, UTC) ·{" "}
           {s.status === "settled" ? "settled" : s.status === "delivery" ? "in delivery, awaiting meter readings" : s.status}
         </p>
@@ -121,7 +121,7 @@ export function Evidence({ g }: { g: number }) {
             <button
               onClick={runCheck}
               disabled={checking}
-              className="num border border-label-muted px-3 py-1 text-2xs uppercase tracking-wider text-label hover:bg-panel-etch disabled:opacity-50"
+              className="rounded-full border border-panel-etch px-4 py-1.5 text-sm text-label hover:border-label-muted disabled:opacity-50"
             >
               {checking ? "Checking…" : "Verify in this browser"}
             </button>

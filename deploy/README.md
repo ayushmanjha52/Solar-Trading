@@ -32,8 +32,7 @@ everything from the raw archive remains `python -m ml.data`, which CI does on
 every push.
 
 Measured on the development machine in production mode, under load from several
-pages: engine about 165 MB, Next about 145 MB. That fits Render's free 512 MB
-instance with room to spare.
+pages: engine about 165 MB, Next about 145 MB, so it fits even a 512 MB instance.
 
 **Set `LEM_ADMIN_TOKEN` on any public deployment.** Every visitor shares one
 clock. With the token set, pausing, stepping, changing speed or jumping to
@@ -41,22 +40,31 @@ another day needs it (the Operator button in the control room); visitors can
 still trade. Visitor orders are capped: 300 open in total, 5 per household per
 slot.
 
-**Render**: the repository has a Blueprint (`render.yaml`). In the Render
-dashboard choose New → Blueprint and pick this repository; it creates the web
-service from `deploy/Dockerfile` on the free plan with a generated
-`LEM_ADMIN_TOKEN` (shown in the service's Environment tab). A free instance
-sleeps after about 15 idle minutes; the next visitor waits about a minute while
-it wakes, and the market restarts at its default day, because its history lives
-in memory.
+### Hosted demo: Hugging Face Spaces
 
-Any other host that runs a Docker image as a web service works too: Railway,
-Fly, or a VM. The engine keeps the order book and three days of history in memory,
-so give it one long-running instance, not a serverless function; a restart
-restarts the market.
+The live demo runs as a free Docker Space (2 vCPU, 16 GB, sleeps only after 48
+hours without visitors). `.github/workflows/deploy.yml` publishes it on every
+push to `main` by running `deploy/hf_space.py`, which stages the tracked files,
+puts `deploy/Dockerfile` at the root and adds the Space's settings to the top of
+its README. One-time setup:
 
-`deploy/start.py` was tested on the development machine in production mode
-(port 3100, operator token set). The Dockerfile itself has not been built there,
-because that machine has no Docker.
+1. Create a Hugging Face account and a **write** access token
+   (Settings → Access Tokens).
+2. In this GitHub repository, add it as the Actions secret `HF_TOKEN`
+   (Settings → Secrets and variables → Actions). Optionally add a second secret,
+   `LEM_ADMIN_TOKEN`, with a long random value: it becomes the operator password.
+3. Run the `deploy` workflow once (Actions → deploy → Run workflow), or push.
+
+The Space is created on the first run, at
+`https://<username>-local-energy-market.hf.space`.
+
+### Any other Docker host
+
+Railway, Fly, a VM: run the image as one long-running web service. The engine
+keeps the order book and three days of history in memory, so it needs one
+always-on instance, not a serverless function; a restart restarts the market.
+The same image ran on Render's free plan, where it worked but slept after 15
+idle minutes and woke slowly on a tenth of a CPU.
 
 ## On-chain anchoring
 

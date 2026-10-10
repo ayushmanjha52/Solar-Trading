@@ -2,17 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Utility annunciator convention. Each colour means one thing and never anything else. */
+/* Black, quiet, and precise. Each colour means one thing and never anything else. */
 :root {
-  --panel-base: #12161b;   /* graphite panel body */
-  --panel-raised: #1c232b; /* card and module surfaces */
-  --panel-etch: #2a3440;   /* engraved divider lines */
-  --label: #e8edf2;        /* primary text */
-  --label-muted: #6e7a87;  /* legends, units, secondary */
-  --flow-export: #f2a93b;  /* amber: energy injected / selling */
-  --flow-import: #3fb8af;  /* cyan: energy drawn / buying */
-  --state-alarm: #c8433b;  /* band violation, settlement mismatch */
-  --state-armed: #7fb069;  /* slot settled and verified */
+  --panel-base: #07080a;   /* page */
+  --panel-raised: #0f1114; /* cards */
+  --panel-etch: #20242b;   /* hairlines */
+  --label: #eceef2;        /* primary text */
+  --label-muted: #8b929d;  /* secondary text, units */
+  --flow-export: #f5b544;  /* amber: energy sold / injected */
+  --flow-import: #4fd1c5;  /* teal: energy bought / drawn */
+  --state-alarm: #f0616d;  /* band violation, settlement mismatch */
+  --state-armed: #74d38a;  /* settled and verified */
   color-scheme: dark;
 }
 
@@ -23,47 +23,119 @@ body {
 }
 
 body {
-  font-family: var(--font-sans), sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Data face: every kWh, rupee and timestamp. Fixed-width digits so live values do not jitter. */
+/* A faint warm and cool light behind the top of every page. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60rem 28rem at 8% -6%, rgba(245, 181, 68, 0.07), transparent 60%),
+    radial-gradient(50rem 26rem at 96% -10%, rgba(79, 209, 197, 0.06), transparent 60%);
+}
+
+/* Numbers: fixed-width digits so live values do not jitter. */
 .num {
-  font-family: var(--font-mono), monospace;
+  font-family: var(--font-mono), ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1;
+  font-feature-settings: "tnum" 1, "zero" 1;
+  letter-spacing: -0.01em;
 }
 
-/* Display face, used rarely: section headers and the hero figure. */
+/* Headings: a grotesque with some character, set in sentence case. */
 .display {
   font-family: var(--font-display), sans-serif;
-  font-stretch: 125%;
   font-weight: 650;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.page-title {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 650;
+  font-size: clamp(1.9rem, 1.4rem + 1.6vw, 2.6rem);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.accent {
+  font-family: var(--font-serif), serif;
+  font-style: italic;
+  font-weight: 400;
   letter-spacing: -0.01em;
 }
 
 .hero-figure {
   font-family: var(--font-display), sans-serif;
-  font-stretch: 125%;
   font-weight: 650;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.04em;
   font-variant-numeric: proportional-nums;
 }
 
+/* Small labels above values and in card headers. */
 .legend {
-  font-family: var(--font-mono), monospace;
-  font-size: 0.6875rem;
-  letter-spacing: 0.06em;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--label-muted);
 }
 
+.card {
+  border: 1px solid var(--panel-etch);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0) 120px),
+    var(--panel-raised);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--panel-etch);
+  padding: 0.3rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--state-armed);
+  box-shadow: 0 0 0 0 rgba(116, 211, 138, 0.6);
+  animation: live 2.4s ease-out infinite;
+}
+
+@keyframes live {
+  0% {
+    box-shadow: 0 0 0 0 rgba(116, 211, 138, 0.55);
+  }
+  80%,
+  100% {
+    box-shadow: 0 0 0 8px rgba(116, 211, 138, 0);
+  }
+}
+
 :focus-visible {
-  outline: 1px solid var(--label);
+  outline: 2px solid var(--flow-export);
   outline-offset: 2px;
+  border-radius: 6px;
 }
 
 ::selection {
-  background: var(--panel-etch);
+  background: rgba(245, 181, 68, 0.3);
 }
 
 input,
@@ -72,14 +144,14 @@ button {
   font: inherit;
 }
 
-/* Recharts: keep the chart chrome recessive and in the data face. */
+/* Recharts: recessive chrome, numbers in the data face. */
 .recharts-cartesian-axis-tick-value {
   font-family: var(--font-mono), monospace;
   font-size: 11px;
   fill: var(--label-muted);
 }
 .recharts-label {
-  font-family: var(--font-mono), monospace;
+  font-family: var(--font-sans), sans-serif;
   font-size: 11px;
 }
 

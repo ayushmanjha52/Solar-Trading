@@ -36,16 +36,32 @@ def get() -> Simulation:
     return SIM
 
 
+NIGHT_SLOT_SECONDS = 1.0
+DAYLIGHT_SLOTS = range(12, 40)  # SP 12-39, 05:30-19:30 AEST: the hours rooftop PV can generate
+
+
+def slot_interval(sim: Simulation) -> float:
+    """Wall-clock seconds the slot now in delivery stays on screen.
+
+    Night slots have no generation and so no trades. They are still cleared,
+    committed, signed and settled, just quickly, so visitors spend their time
+    watching the hours when the market actually trades.
+    """
+    if sim.data.slot_of(sim.g) in DAYLIGHT_SLOTS:
+        return sim.slot_seconds
+    return min(sim.slot_seconds, NIGHT_SLOT_SECONDS)
+
+
 def clock_loop(sim: Simulation, stop: threading.Event) -> None:
-    next_tick = time.monotonic() + sim.slot_seconds
+    next_tick = time.monotonic() + slot_interval(sim)
     while not stop.is_set():
         time.sleep(0.05)
         if sim.paused:
-            next_tick = time.monotonic() + sim.slot_seconds
+            next_tick = time.monotonic() + slot_interval(sim)
             continue
         if time.monotonic() >= next_tick:
             sim.tick()
-            next_tick = time.monotonic() + sim.slot_seconds
+            next_tick = time.monotonic() + slot_interval(sim)
 
 
 def make_chain():
