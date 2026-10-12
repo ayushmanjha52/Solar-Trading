@@ -113,9 +113,8 @@ export default function ResultsPage() {
       <div>
         <h1 className="page-title text-label">Results</h1>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-label-muted">
-          Milestone 2 (forecasting) and Milestone 6 (the study). Every number on this page is regenerated from scratch by{" "}
-          <code className="num text-label">python -m ml.evaluate</code> and <code className="num text-label">python -m sim.study</code>{" "}
-          on fixed seeds. Negative results are reported as they came out.
+          Milestone 2 (forecasting) and Milestone 6 (the study). Every number on this page is regenerated from scratch on
+          fixed seeds. Negative results are reported as they came out.
         </p>
       </div>
 

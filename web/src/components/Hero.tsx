@@ -4,7 +4,6 @@ import Link from "next/link";
 import { inrSigned, kwh } from "@/lib/format";
 import type { Live } from "@/lib/types";
 import { usePoll } from "@/lib/usePoll";
-import { GITHUB_URL } from "./Nav";
 
 interface Summary {
   forecast_model: string | null;
@@ -52,14 +51,9 @@ export function Hero() {
         <Link href="/method" className="rounded-full border border-panel-etch px-5 py-2.5 text-sm text-label hover:border-label-muted">
           How it works
         </Link>
-        <a
-          href={GITHUB_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="rounded-full border border-panel-etch px-5 py-2.5 text-sm text-label hover:border-label-muted"
-        >
-          Source code
-        </a>
+        <Link href="/results" className="rounded-full border border-panel-etch px-5 py-2.5 text-sm text-label hover:border-label-muted">
+          Results
+        </Link>
       </div>
 
       <div className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">

@@ -19,8 +19,8 @@ const SLOTS = 48;
 const EPOCH_S = Date.UTC(2026, 0, 1) / 1000;
 
 export const HOSTED_ORDER_MESSAGE =
-  "This hosted copy replays a recorded week of the market, so it cannot take orders. To trade, run the full market: clone the repository and run python demo.py.";
-export const HOSTED_CLOCK_MESSAGE = "This hosted copy replays a recorded week on a fixed clock.";
+  "This online version replays a recorded week of the market, so it cannot take orders. Trading needs the live market engine.";
+export const HOSTED_CLOCK_MESSAGE = "This online version replays a recorded week on a fixed clock.";
 
 export function isHosted(): boolean {
   return process.env.LEM_HOSTED === "1" || (process.env.VERCEL === "1" && !process.env.SIM_URL);

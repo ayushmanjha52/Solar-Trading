@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { GITHUB_URL, Mark } from "./Nav";
+import { Mark } from "./Nav";
 
 export function Footer() {
   return (
@@ -14,9 +14,6 @@ export function Footer() {
             Designed and built by <span className="text-label">Ayushman Jha</span>.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <a href={GITHUB_URL} target="_blank" rel="noreferrer" className="pill text-label hover:border-label-muted">
-              Source on GitHub
-            </a>
             <Link href="/method" className="pill text-label hover:border-label-muted">
               How it works
             </Link>

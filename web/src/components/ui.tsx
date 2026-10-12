@@ -97,9 +97,7 @@ export function EngineOffline({ message }: { message: string }) {
       <div className="legend text-alarm">Engine offline</div>
       <p className="mt-2 text-label">{message}</p>
       <p className="mt-1 text-sm text-label-muted">
-        From the repository root run <code className="num text-label">python demo.py</code>, or start the engine alone
-        with <code className="num text-label">python -m sim.api</code>. A hosted copy that has been asleep can take up to
-        a minute to wake.
+        The page keeps retrying and reconnects on its own once the market engine answers.
       </p>
     </div>
   );

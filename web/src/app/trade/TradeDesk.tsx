@@ -103,9 +103,8 @@ export function TradeDesk() {
         <div className="card flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-4 text-sm">
           <span className="h-2 w-2 rounded-full bg-export" />
           <p className="min-w-0 flex-1 text-label-muted">
-            <span className="text-label">This hosted copy replays a recorded week, so it cannot take orders.</span> The
-            form below shows what a trader sees. To place real orders against the live engine, clone the repository and
-            run <code className="num text-label">python demo.py</code>.
+            <span className="text-label">This online version replays a recorded week, so it cannot take orders.</span> The
+            form below shows what a trader sees; with the live market engine running, the same form places real orders.
           </p>
         </div>
       )}
