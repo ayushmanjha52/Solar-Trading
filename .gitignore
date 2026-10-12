@@ -13,6 +13,8 @@ reports/figures/*
 !reports/figures/sanity_*.png
 
 .env
+.env*.local
+.vercel/
 .demo-logs/
 # Local editor and tool settings
 .claude/
